@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>activation-page-failure</title>
+</head>
+<body>
+<p>FAILURE ACTIVATION PAGE</p>
+<br>
+<p>Invalid activation key or account already activated</p>
+<br>
+<form th:method="GET" th:action="@{/auth/login}">
+    <input type="submit" value="Log in">
+</form>
+</body>
+</html>
