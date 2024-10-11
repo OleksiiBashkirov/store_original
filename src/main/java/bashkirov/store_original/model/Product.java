@@ -8,6 +8,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.relational.core.mapping.Column;
 
 import java.math.BigDecimal;
 
@@ -22,15 +23,18 @@ public class Product {
     private String title;
 
     @Min(0)
-    @Max(100000)
+    @Max(100_000)
     private BigDecimal price;
 
     @NotBlank
-    @Pattern(regexp = "^\\d{4}-\\d{4}$")
+    @Pattern(regexp = "^[a-zA-Z0-9]{12}$")
     private String article;
 
     private int countLeft;
 
     @NotBlank(message = "Field cannot be empty")
     private String description;
+
+    @Column(value = "category_id")
+    private Category category;
 }

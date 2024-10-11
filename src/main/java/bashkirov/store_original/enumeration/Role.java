@@ -1,7 +1,7 @@
 package bashkirov.store_original.enumeration;
 
 public enum Role {
-    ADMIN_ROLE,
-    MANAGER_ROLE,
-    USER_ROLE
+    ROLE_ADMIN,
+    ROLE_MANAGER,
+    ROLE_USER
 }
