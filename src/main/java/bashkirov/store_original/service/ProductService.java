@@ -2,15 +2,15 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.model.Category;
 import bashkirov.store_original.model.Product;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.NoSuchElementException;
-import java.util.Optional;
 
 //генеруємо артикл для продукту , зберігаєм продукт , створюєм ключ, зберігаєм фотку,
 @Service
@@ -71,7 +71,7 @@ public class ProductService {
                 );
     }
 
-    private static RowMapper<Product> getProductRowMapper() {
+    public static RowMapper<Product> getProductRowMapper() {
         return (rs, rowNum) -> {
             Product product = new Product();
             product.setId(rs.getInt("id"));
@@ -87,5 +87,39 @@ public class ProductService {
 
             return product;
         };
+    }
+
+    public Product getById(int id) {
+        return jdbcTemplate.query(
+                "select * from product where id = ?",
+                new Object[]{id},
+                new BeanPropertyRowMapper<>(Product.class)
+        ).stream().findAny().orElseThrow(() -> new NoSuchElementException("Failed to get product by id=" + id));
+    }
+
+    public List<Product> getAll() {
+        return jdbcTemplate.query(
+                "select p.* from product p join category c on p.category_id=c.id",
+                ProductService.getProductRowMapper()
+        );
+    }
+
+    public void update(int id, Product product) {
+        jdbcTemplate.update(
+                "update product set title = ?, price = ?, article = ?, count_left = ?, description = ?, category_id = ? where id = ?",
+                product.getTitle(),
+                product.getPrice(),
+                product.getArticle(),
+                product.getCountLeft(),
+                product.getDescription(),
+                product.getCategory().getId()
+        );
+    }
+
+    public void delete(int id) {
+        jdbcTemplate.update(
+                "delete from product where id = ?",
+                id
+        );
     }
 }

@@ -1,6 +1,6 @@
 package bashkirov.store_original.model;
 
-import bashkirov.store_original.enumeration.Status;
+import bashkirov.store_original.enumeration.OrdersStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Pattern;
@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Orders {
     private int id;
-
-    private Status status;
+    private int personId;
+    private OrdersStatus ordersStatus;
 
     @PastOrPresent
     private LocalDateTime createdAt;

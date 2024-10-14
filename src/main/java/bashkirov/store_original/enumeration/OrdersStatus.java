@@ -1,6 +1,6 @@
 package bashkirov.store_original.enumeration;
 
-public enum Status {
+public enum OrdersStatus {
     NEW,
     PENDING,
     PAID,

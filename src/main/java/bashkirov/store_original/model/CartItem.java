@@ -9,5 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class CartItem {
     private int id;
+    private int personId;
+    private int productId;
     private int quantity;
+    private int orderId;
 }

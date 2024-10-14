@@ -2,6 +2,8 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.model.ProductPhoto;
+import java.util.List;
+import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
@@ -9,9 +11,6 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
-import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -21,13 +20,21 @@ public class PhotoService {
     @Setter
     private ProductService productService;
 
-    public ProductPhoto getById(int id) {
+    public ProductPhoto getPrimaryPhotoByProductId(int productId) {
         return jdbcTemplate.query(
-                "select  * from product_photo where id = ?",
-                new Object[]{id},
+                "select  * from product_photo where product_id = ? and is_primary = true",
+                new Object[]{productId},
                 new BeanPropertyRowMapper<>(ProductPhoto.class)
         ).stream().findAny().orElseThrow(
-                () -> new NoSuchElementException("Failed to find photo with id =" + id)
+                () -> new NoSuchElementException("Failed to find photo with id =" + productId)
+        );
+    }
+
+    public List<ProductPhoto> getAllPhotoByProductId(int id) {
+        return jdbcTemplate.query(
+                "select * from product_photo where product_id = ?",
+                new Object[]{id},
+                new BeanPropertyRowMapper<>(ProductPhoto.class)
         );
     }
 
@@ -80,7 +87,7 @@ public class PhotoService {
         );
     }
 
-    public void deleteById(int photoId) {
+    public void delete(int photoId) {
         jdbcTemplate.update(
                 "delete from product_photo where id = ?",
                 photoId
