@@ -20,9 +20,9 @@ public class ActivationController {
     ) {
         try {
             activationService.activate(key);
-            return "activation-page-successfully";
+            return "activation/activation-page-successfully";
         } catch (InvalidActivationKeyException ex) {
-            return "activation-page-failure";
+            return "activation/activation-page-failure";
         }
     }
 }

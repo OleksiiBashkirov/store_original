@@ -35,7 +35,7 @@ public class SecurityConfig {
                         formLogin
                                 .loginPage("/auth/login")
                                 .loginProcessingUrl("/process_login")
-                                .defaultSuccessUrl("/main")
+                                .defaultSuccessUrl("/product")
                                 .failureUrl("/auth/login?error")
                 );
         return httpSecurity.build();

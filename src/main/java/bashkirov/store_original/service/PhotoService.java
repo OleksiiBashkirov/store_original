@@ -2,8 +2,6 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.model.ProductPhoto;
-import java.util.List;
-import java.util.NoSuchElementException;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
@@ -12,27 +10,28 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+import java.util.NoSuchElementException;
+
 @Service
 @RequiredArgsConstructor
 public class PhotoService {
     private final JdbcTemplate jdbcTemplate;
     private final DoService doService;
-    @Setter
-    private ProductService productService;
 
     public ProductPhoto getPrimaryPhotoByProductId(int productId) {
         return jdbcTemplate.query(
-                "select  * from product_photo where product_id = ? and is_primary = true",
+                "select * from product_photo where product_id = ? and is_primary = true",
                 new Object[]{productId},
                 new BeanPropertyRowMapper<>(ProductPhoto.class)
         ).stream().findAny().orElseThrow(
-                () -> new NoSuchElementException("Failed to find photo with id =" + productId)
+                () -> new NoSuchElementException("Failed to find photo with id = " + productId)
         );
     }
 
     public List<ProductPhoto> getAllPhotoByProductId(int id) {
         return jdbcTemplate.query(
-                "select * from product_photo where product_id = ?",
+                "select * from product_photo where product_id = ? AND is_primary = false",
                 new Object[]{id},
                 new BeanPropertyRowMapper<>(ProductPhoto.class)
         );
@@ -45,14 +44,11 @@ public class PhotoService {
         );
     }
 
-    public void save(MultipartFile multipartFile, String article, boolean isPrimary) {
+    public void save(MultipartFile multipartFile, Product product, boolean isPrimary) {
         String extension = FilenameUtils.getExtension(multipartFile.getOriginalFilename());
         String filename = FilenameUtils.removeExtension(multipartFile.getOriginalFilename());
-        String key = "photo/" + article + "/" + filename + "." + extension;
+        String key = "photo/" + product.getArticle() + "/" + filename + "." + extension;
         doService.saveFile(multipartFile, key);
-
-        // підключимо продукт сервіс який буде знаходити продукт за артиклом
-        Product productByArticle = productService.getProductByArticle(article);
 
         ProductPhoto photo = new ProductPhoto();
         photo.setName(filename);
@@ -63,7 +59,7 @@ public class PhotoService {
                 "insert into product_photo(name, url, product_id, is_primary) values (?,?,?,?)",
                 photo.getName(),
                 photo.getUrl(),
-                productByArticle.getId(),
+                product.getId(),
                 isPrimary
         );
     }
@@ -73,7 +69,7 @@ public class PhotoService {
 
         for (MultipartFile multipartFile : multipartFiles) {
             if (!multipartFile.isEmpty()) {
-                save(multipartFile, product.getArticle(), isPrimary);
+                save(multipartFile, product, isPrimary);
                 isPrimary = false;
             }
         }

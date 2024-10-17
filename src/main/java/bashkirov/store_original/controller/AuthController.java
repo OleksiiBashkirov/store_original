@@ -28,7 +28,7 @@ public class AuthController {
     public String registrationPage(
             @ModelAttribute("personNew") Person personNew
     ) {
-        return "registration-page";
+        return "auth/registration-page";
     }
 
     @PostMapping("/registration")
@@ -38,7 +38,7 @@ public class AuthController {
     ) {
         personValidator.validate(personNew, bindingResult);
         if (bindingResult.hasErrors()) {
-            return "registration-page";
+            return "auth/registration-page";
         }
         registrationService.register(personNew);
         return "redirect:/auth/login";
@@ -46,7 +46,7 @@ public class AuthController {
 
     @GetMapping("/login")
     public String loginPage() {
-        return "enter-page";
+        return "auth/enter-page";
     }
 
     @GetMapping("/logout")

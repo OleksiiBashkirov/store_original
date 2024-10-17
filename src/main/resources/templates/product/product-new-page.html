@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>product-new-page</title>
+</head>
+<body>
+<p>NEW PRODUCT PAGE</p>
+<form th:method="POST" th:action="@{/product}" th:object="${productNew}"
+      enctype="multipart/form-data">
+    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+    <input type="file" name="multipartFile" accept="image/*" multiple required>
+    <br>
+    <label for="titleId">TITLE</label>
+    <input type="text" th:field="*{title}" id="titleId">
+    <div style="color: red" th:if="${#fields.hasErrors('title')}" th:error="*{title}"></div>
+    <br>
+    <label for="priceId">PRICE</label>
+    <input type="text" th:field="*{price}" id="priceId">
+    <div style="color: red" th:if="${#fields.hasErrors('price')}" th:error="*{price}"></div>
+    <br>
+    <label for="countLeftId">COUNT LEFT</label>
+    <input type="text" th:field="*{countLeft}" id="countLeftId">
+    <div style="color: red" th:if="${#fields.hasErrors('countLeft')}" th:error="*{countLeft}"></div>
+    <br>
+    <label for="descriptionId">DESCRIPTION</label>
+    <input type="text" th:field="*{description}" id="descriptionId">
+    <div style="color: red" th:if="${#fields.hasErrors('description')}" th:error="*{description}"></div>
+    <br>
+    <label for="selectCategoryId">CATEGORY</label>
+    <select th:field="*{categoryId}" id="selectCategoryId">
+        <option th:each="category : ${categories}"
+                th:value="${category.getId()}"
+                th:text="${category.getName()}"
+        >
+        </option>
+    </select>
+    <br>
+    <input type="submit" value="Save">
+</form>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>categories-page</title>
+</head>
+<body>
+<p>CATEGORIES PAGE</p>
+<div th:each="category : ${categoriesAll}">
+    <form th:method="GET" th:action="@{/product}">
+        <input type="hidden" name="categoryId" th:value="${category.getId()}" th:text="${category.getId()}">
+        <input type="submit" th:value="${category.getName()}">
+    </form>
+</div>
+</body>
+</html>

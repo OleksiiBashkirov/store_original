@@ -1,16 +1,20 @@
 package bashkirov.store_original.service;
 
-import bashkirov.store_original.model.Category;
+import bashkirov.store_original.dto.ProductPhotoDto;
+import bashkirov.store_original.dto.ProductPhotosDto;
 import bashkirov.store_original.model.Product;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
+import bashkirov.store_original.model.ProductPhoto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
 
 //генеруємо артикл для продукту , зберігаєм продукт , створюєм ключ, зберігаєм фотку,
 @Service
@@ -48,16 +52,16 @@ public class ProductService {
         product.setArticle(generateArticle());
 //      збергіаємо продукт
         jdbcTemplate.update(
-                "insert into product(title, price, article, count_left, description, category_id) values (?,?,?,?,?,?)",
+                "insert into product(title, price, article, count_left, description, category_id) values (?,?,?,?,?, ?)",
                 product.getTitle(),
                 product.getPrice(),
                 product.getArticle(),
                 product.getCountLeft(),
                 product.getDescription(),
-                product.getCategory().getId()
+                product.getCategoryId()
         );
 
-        photoService.save(file, product.getArticle(), isPrimary);
+        photoService.save(file, getProductByArticle(product.getArticle()), isPrimary);
     }
 
     public Product getProductByArticle(String article) {
@@ -80,11 +84,7 @@ public class ProductService {
             product.setArticle(rs.getString("article"));
             product.setCountLeft(rs.getInt("count_left"));
             product.setDescription(rs.getString("description"));
-            Category category = new Category();
-            category.setId(rs.getInt("category_id"));
-            category.setName(rs.getString("name"));
-            product.setCategory(category);
-
+            product.setCategoryId(rs.getInt("category_id"));
             return product;
         };
     }
@@ -104,6 +104,27 @@ public class ProductService {
         );
     }
 
+    public List<ProductPhotoDto> getAllProductPhotos() {
+        List<Product> productList = getAll();
+        return transformProductToProductDto(productList);
+    }
+
+    private List<ProductPhotoDto> transformProductToProductDto(List<Product> productList) {
+        List<ProductPhotoDto> productPhotoDtoList = new ArrayList<>();
+        for (Product product : productList) {
+            ProductPhoto productPhoto = photoService.getPrimaryPhotoByProductId(product.getId());
+            productPhotoDtoList.add(new ProductPhotoDto(product, productPhoto));
+        }
+        return productPhotoDtoList;
+    }
+
+    public ProductPhotosDto getProductWithPhotos(int productId) {
+        Product product = getById(productId);
+        ProductPhoto primaryProductPhoto = photoService.getPrimaryPhotoByProductId(product.getId());
+        List<ProductPhoto> productPhotoList = photoService.getAllPhotoByProductId(product.getId());
+        return new ProductPhotosDto(product, primaryProductPhoto, productPhotoList);
+    }
+
     public void update(int id, Product product) {
         jdbcTemplate.update(
                 "update product set title = ?, price = ?, article = ?, count_left = ?, description = ?, category_id = ? where id = ?",
@@ -112,7 +133,7 @@ public class ProductService {
                 product.getArticle(),
                 product.getCountLeft(),
                 product.getDescription(),
-                product.getCategory().getId()
+                product.getCategoryId()
         );
     }
 
@@ -121,5 +142,42 @@ public class ProductService {
                 "delete from product where id = ?",
                 id
         );
+    }
+
+    public List<ProductPhotoDto> search(String key, Integer categoryId) {
+        if (key == null || key.isBlank()) {
+            if (categoryId != null) {
+                return getAllByCategoryId(categoryId);
+            }
+            return getAllProductPhotos();
+        }
+        String iLikeQuery = "%" + key + "%";
+
+        List<Product> productList = null;
+        if (categoryId == null) {
+            productList = jdbcTemplate.query(
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ?",
+                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery},
+                    new BeanPropertyRowMapper<>(Product.class)
+            );
+        } else {
+            productList = jdbcTemplate.query(
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? AND category_id = ?",
+                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery, categoryId},
+                    new BeanPropertyRowMapper<>(Product.class)
+            );
+        }
+
+        return transformProductToProductDto(productList);
+    }
+
+    public List<ProductPhotoDto> getAllByCategoryId(int categoryId) {
+
+        List<Product> query = jdbcTemplate.query(
+                "select * from product where category_id = ?",
+                new Object[]{categoryId},
+                new BeanPropertyRowMapper<>(Product.class)
+        );
+        return transformProductToProductDto(query);
     }
 }

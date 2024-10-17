@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>category-new-page</title>
+</head>
+<body>
+<p>NEW CATEGORY PAGE</p>
+<br>
+<form th:method="POST" th:action="@{/category}" th:object="${categoryNew}">
+    <label for="nameId">NAME</label>
+    <input type="text" th:field="*{name}" id="nameId">
+    <div style="color: red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+    <br>
+    <input type="submit" value="Save">
+</form>
+</body>
+</html>
