@@ -79,5 +79,9 @@ create table activation
 );
 drop table activation;
 
+delete from product where category_id is null;
+delete from product where category_id = 1;
+delete from product where id =10;
+
 
 

@@ -48,7 +48,7 @@ public class ProductService {
         return sb.toString();
     }
 
-    public void save(Product product, MultipartFile file, boolean isPrimary) {
+    public void save(Product product, MultipartFile file, boolean isPrimary, MultipartFile[] multipartFiles) {
         product.setArticle(generateArticle());
 //      збергіаємо продукт
         jdbcTemplate.update(
@@ -60,8 +60,9 @@ public class ProductService {
                 product.getDescription(),
                 product.getCategoryId()
         );
-
-        photoService.save(file, getProductByArticle(product.getArticle()), isPrimary);
+        product = getProductByArticle(product.getArticle());
+        photoService.save(file, product, isPrimary);
+        photoService.saveAll(multipartFiles, product);
     }
 
     public Product getProductByArticle(String article) {
@@ -99,7 +100,7 @@ public class ProductService {
 
     public List<Product> getAll() {
         return jdbcTemplate.query(
-                "select p.* from product p join category c on p.category_id=c.id",
+                "select p.* from product p join category c on p.category_id=c.id order by p.id",
                 ProductService.getProductRowMapper()
         );
     }
@@ -107,6 +108,14 @@ public class ProductService {
     public List<ProductPhotoDto> getAllProductPhotos() {
         List<Product> productList = getAll();
         return transformProductToProductDto(productList);
+    }
+
+    public List<ProductPhoto> getAllPhotoByProductId(int productId) {
+        return jdbcTemplate.query(
+                "select * from product_photo where product_id = ? order by product_id",
+                new Object[]{productId},
+                new BeanPropertyRowMapper<>(ProductPhoto.class)
+        );
     }
 
     private List<ProductPhotoDto> transformProductToProductDto(List<Product> productList) {
@@ -133,7 +142,8 @@ public class ProductService {
                 product.getArticle(),
                 product.getCountLeft(),
                 product.getDescription(),
-                product.getCategoryId()
+                product.getCategoryId(),
+                id
         );
     }
 
@@ -156,13 +166,13 @@ public class ProductService {
         List<Product> productList = null;
         if (categoryId == null) {
             productList = jdbcTemplate.query(
-                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ?",
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? order by id",
                     new Object[]{iLikeQuery, iLikeQuery, iLikeQuery},
                     new BeanPropertyRowMapper<>(Product.class)
             );
         } else {
             productList = jdbcTemplate.query(
-                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? AND category_id = ?",
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? AND category_id = ? order by id",
                     new Object[]{iLikeQuery, iLikeQuery, iLikeQuery, categoryId},
                     new BeanPropertyRowMapper<>(Product.class)
             );
@@ -174,7 +184,7 @@ public class ProductService {
     public List<ProductPhotoDto> getAllByCategoryId(int categoryId) {
 
         List<Product> query = jdbcTemplate.query(
-                "select * from product where category_id = ?",
+                "select * from product where category_id = ? order by id",
                 new Object[]{categoryId},
                 new BeanPropertyRowMapper<>(Product.class)
         );

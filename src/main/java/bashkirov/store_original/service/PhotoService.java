@@ -3,7 +3,6 @@ package bashkirov.store_original.service;
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.model.ProductPhoto;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -65,20 +64,19 @@ public class PhotoService {
     }
 
     public void saveAll(MultipartFile[] multipartFiles, Product product) {
-        boolean isPrimary = true;
-
         for (MultipartFile multipartFile : multipartFiles) {
-            if (!multipartFile.isEmpty()) {
-                save(multipartFile, product, isPrimary);
-                isPrimary = false;
-            }
+            save(multipartFile, product, false);
         }
     }
 
-    public void update(int photoId, boolean isPrimary) {
+    public void setPrimary(int photoId, int productId) {
         jdbcTemplate.update(
-                "update product_photo set is_primary = ? where id = ?",
-                isPrimary,
+                "update product_photo set is_primary = false where product_id = ?",
+                productId
+        );
+
+        jdbcTemplate.update(
+                "update product_photo set is_primary = true where id = ?",
                 photoId
         );
     }

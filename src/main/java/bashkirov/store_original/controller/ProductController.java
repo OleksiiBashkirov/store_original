@@ -1,9 +1,10 @@
 package bashkirov.store_original.controller;
 
 import bashkirov.store_original.model.Product;
+import bashkirov.store_original.service.CartItemService;
 import bashkirov.store_original.service.CategoryService;
+import bashkirov.store_original.service.PhotoService;
 import bashkirov.store_original.service.ProductService;
-import bashkirov.store_original.validation.CategoryValidator;
 import bashkirov.store_original.validation.ProductValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +29,8 @@ public class ProductController {
     private final ProductService productService;
     private final ProductValidator productValidator;
     private final CategoryService categoryService;
-    private final CategoryValidator categoryValidator;
+    private final PhotoService photoService;
+    private final CartItemService cartItemService;
 
     @GetMapping()
     public String search(
@@ -48,7 +50,7 @@ public class ProductController {
             @PathVariable("id") int id,
             Model model
     ) {
-
+        model.addAttribute("isPresentInCart", cartItemService.isProductPresentInCart(id));
         model.addAttribute("productWithPhotos", productService.getProductWithPhotos(id));
         return "product/product-page";
     }
@@ -67,6 +69,7 @@ public class ProductController {
     @PostMapping
     public String save(
             @RequestParam("multipartFile") MultipartFile multipartFile,
+            @RequestParam("multipartFilesArray") MultipartFile[] multipartFiles,
             @Valid @ModelAttribute("productNew") Product productNew,
             BindingResult bindingResult
     ) {
@@ -75,7 +78,7 @@ public class ProductController {
         if (bindingResult.hasErrors()) {
             return "product/product-new-page";
         }
-        productService.save(productNew, multipartFile, true);
+        productService.save(productNew, multipartFile, true, multipartFiles);
         return "redirect:/product";
     }
 
@@ -83,8 +86,12 @@ public class ProductController {
     @GetMapping("/edit/{id}")
     public String productEditPage(
             @PathVariable("id") int id,
-            @ModelAttribute("productUpdate") Product productUpdate
+            Model model
     ) {
+        model.addAttribute("photoPrimary", photoService.getPrimaryPhotoByProductId(id));
+        model.addAttribute("photoAll", productService.getAllPhotoByProductId(id));
+        model.addAttribute("productUpdate", productService.getById(id));
+        model.addAttribute("categoriesUpdate", categoryService.getAll());
         return "product/product-update-page";
     }
 
@@ -103,6 +110,41 @@ public class ProductController {
         return "redirect:/product/" + id;
     }
 
+    /*
+    методи в контролері:
+        1. Видалення фотки за ід фотки
+        2. Зробити фотку праймарі
+        3. Добавити фотки за ід продукту
+     */
+    @DeleteMapping("/delete-photo/{photoId}")
+    public String deletePhotoById(
+            @RequestParam("productId") int productId,
+            @PathVariable("photoId") int photoId
+    ) {
+        productService.delete(photoId);
+        return "redirect:/product/edit/" + productId;
+    }
+
+    @PutMapping("/edit-primary-photo/{photoId}")
+    public String setPhotoPrimary(
+            @RequestParam("productId") int productId,
+            @PathVariable("photoId") int photoId
+    ) {
+        photoService.setPrimary(photoId, productId);
+        return "redirect:/product/edit/" + productId;
+    }
+
+    @PutMapping("/add-photos/{productId}")
+    public String addPhotos(
+            @PathVariable("productId") int productId,
+            @RequestParam("multipartFilesArray") MultipartFile[] multipartFiles
+
+    ) {
+        Product product = productService.getById(productId);
+        photoService.saveAll(multipartFiles, product);
+        return "redirect:/product/edit/" + productId;
+    }
+
     @DeleteMapping("/{id}")
     public String delete(
             @PathVariable("id") int id
@@ -110,8 +152,5 @@ public class ProductController {
         productService.delete(id);
         return "redirect:/product";
     }
-
-    // html сторінки -> зміна продукту, категорії,
-
-
+    // ДЗ: оформити гарно сторінки хтмл
 }

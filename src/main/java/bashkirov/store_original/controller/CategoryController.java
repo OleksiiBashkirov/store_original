@@ -3,6 +3,7 @@ package bashkirov.store_original.controller;
 import bashkirov.store_original.model.Category;
 import bashkirov.store_original.service.CategoryService;
 import bashkirov.store_original.validation.CategoryValidator;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -36,7 +37,7 @@ public class CategoryController {
 
     @PostMapping
     public String save(
-            @ModelAttribute("categoryNew") Category categoryNew,
+            @Valid @ModelAttribute("categoryNew") Category categoryNew,
             BindingResult bindingResult
     ) {
         categoryValidator.validate(categoryNew, bindingResult);

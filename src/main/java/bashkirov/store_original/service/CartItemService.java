@@ -1,14 +1,14 @@
 package bashkirov.store_original.service;
 
+import bashkirov.store_original.dto.CartItemDto;
+import bashkirov.store_original.dto.ProductPhotoDto;
 import bashkirov.store_original.exception.AccessDeniedException;
 import bashkirov.store_original.exception.CartItemNotFoundException;
 import bashkirov.store_original.model.CartItem;
 import bashkirov.store_original.model.Person;
 import bashkirov.store_original.model.Product;
+import bashkirov.store_original.model.ProductPhoto;
 import bashkirov.store_original.security.PersonDetails;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,11 +18,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
     private final JdbcTemplate jdbcTemplate;
     private final ProductService productService;
+    private final PhotoService photoService;
 
     public void delete(int cartItemId) {
         Person person = getCurrentUser();
@@ -44,7 +50,7 @@ public class CartItemService {
         }
     }
 
-    public List<CartItem> getAllNotTaken() {
+        public List<CartItem> getAllNotTaken() {
         Person person = getCurrentUser();
         return jdbcTemplate.query(
                 "select * from cart_item where person_id = ? and order_id IS NULL",
@@ -53,7 +59,27 @@ public class CartItemService {
         );
     }
 
-    public void add(int productId, int quantity) {
+    public List<CartItemDto> getAllNotTakenReturnCartItemDto() {
+        Person person = getCurrentUser();
+        List<CartItem> cartItemList = jdbcTemplate.query(
+                "select * from cart_item where person_id = ? and order_id IS NULL order by id",
+                new Object[]{person.getId()},
+                new BeanPropertyRowMapper<>(CartItem.class)
+        );
+        List<CartItemDto> cartItemDtoList = new ArrayList<>();
+
+        for (CartItem item : cartItemList) {
+            Product product = productService.getById(item.getProductId());
+            ProductPhoto productPhoto = photoService.getPrimaryPhotoByProductId(item.getProductId());
+
+            cartItemDtoList.add(new CartItemDto(item, new ProductPhotoDto(product, productPhoto)));
+        }
+        return cartItemDtoList;
+    }
+
+
+    //перевіряти якщо вже такий продукт є в корзині, збільшувати кількість, заміть того щоб додавати ще в корзину
+    public void add(int productId) {
         Product product = jdbcTemplate.query(
                 "select * from product where id = ?",
                 new Object[]{productId},
@@ -62,7 +88,7 @@ public class CartItemService {
                 () -> new NoSuchElementException("Failed to find product by id = " + productId)
         );
 
-        if ((product.getCountLeft() - quantity) < 0) {
+        if ((product.getCountLeft() - 1) < 0) {
             throw new IllegalArgumentException("Product left = " + product.getCountLeft() + ". You should order this quantity or less");
         }
 
@@ -71,7 +97,7 @@ public class CartItemService {
                 "insert into cart_item(person_id, product_id, quantity, order_id) values (?,?,?,?)",
                 person.getId(),
                 product.getId(),
-                quantity,
+                1,
                 null
         );
     }
@@ -87,7 +113,7 @@ public class CartItemService {
         if (optionalCartItem.isPresent()) {
             CartItem cartItem = optionalCartItem.get();
             if (cartItem.getPersonId() != person.getId()) {
-                throw new IllegalArgumentException("This cartItem not belongs to person with id =" + person.getId());
+                throw new IllegalArgumentException("This Item not belongs to person with id =" + person.getId());
             }
             Product product = jdbcTemplate.query(
                     "select * from product where id = ?",
@@ -95,13 +121,22 @@ public class CartItemService {
                     new BeanPropertyRowMapper<>(Product.class)
             ).stream().findAny().orElseThrow(() -> new NoSuchElementException("Failed to find product by productId=" + cartItem.getProductId()));
 
-            if ((product.getCountLeft() - quantityNew) < 0) {
+            if ((product.getCountLeft() - quantityNew) <= 0) {
+//                delete(cartItem.getId());
+//                return;
                 throw new IllegalArgumentException("Product left = " + product.getCountLeft() + ". You should order this quantity or less");
             }
 
-            if (quantityNew < 0) {
+            if (quantityNew <= 0) {
                 delete(cartItem.getId());
+                return;
             }
+
+            jdbcTemplate.update(
+                    "update cart_item set quantity = ? where id= ?",
+                    quantityNew,
+                    cartItemId
+            );
         }
     }
 
@@ -143,5 +178,16 @@ public class CartItemService {
                 );
             }
         }
+    }
+
+    public boolean isProductPresentInCart(int productId) {
+        Person person = getCurrentUser();
+
+        Optional<CartItem> optionalCartItem = jdbcTemplate.query(
+                "select * from cart_item where person_id = ? AND product_id = ?",
+                new Object[]{person.getId(), productId},
+                new BeanPropertyRowMapper<>(CartItem.class)
+        ).stream().findAny();
+        return optionalCartItem.isPresent();
     }
 }

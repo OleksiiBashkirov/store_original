@@ -3,43 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <title>registration-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .registration-container {
+            background-color: white;
+            padding: 40px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .registration-container h2 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+
+        input[type="submit"] {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .login-link {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .login-link input {
+            background-color: #007bff;
+            border: none;
+            padding: 10px;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .login-link input:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<p>REGISTRATION PAGE</p>
-<form th:method="POST" th:action="@{/auth/registration}" th:object="${personNew}">
-    <label for="nameId">NAME</label>
-    <input type="text" th:field="*{name}" id="nameId">
-    <div style="color: red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-    <br>
-    <label for="lastnameId">LASTNAME</label>
-    <input type="text" th:field="*{lastname}" id="lastnameId">
-    <div style="color: red" th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}"></div>
-    <br>
-    <label for="addressId">ADDRESS</label>
-    <input type="text" th:field="*{address}" id="addressId">
-    <div style="color: red" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
-    <br>
-    <label for="phoneId">PHONE</label>
-    <input type="text" th:field="*{phone}" id="phoneId">
-    <div style="color: red" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
-    <br>
-    <label for="emailId">EMAIL</label>
-    <input type="email" th:field="*{email}" id="emailId">
-    <div style="color: red" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
-    <br>
-    <label for="usernameId">USERNAME</label>
-    <input type="text" th:field="*{username}" id="usernameId">
-    <div style="color: red" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
-    <br>
-    <label for="passwordId">PASSWORD</label>
-    <input type="text" th:field="*{password}" id="passwordId">
-    <div style="color: red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
-    <br>
-    <input type="submit" value="Register">
-</form>
-<br>
-<form th:method="GET" th:action="@{/auth/login}">
-    <input type="submit" value="Log in">
-</form>
+<div class="registration-container">
+    <h2>Register</h2>
+    <!--    <p>REGISTRATION PAGE</p>-->
+    <form th:method="POST" th:action="@{/auth/registration}" th:object="${personNew}">
+        <label for="nameId">Name</label>
+        <input type="text" th:field="*{name}" id="nameId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+
+        <label for="lastnameId">Last Name</label>
+        <input type="text" th:field="*{lastname}" id="lastnameId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('lastname')}" th:errors="*{lastname}"></div>
+
+        <label for="addressId">Address</label>
+        <input type="text" th:field="*{address}" id="addressId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+
+        <label for="phoneId">Phone</label>
+        <input type="text" th:field="*{phone}" id="phoneId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></div>
+
+        <label for="emailId">Email</label>
+        <input type="email" th:field="*{email}" id="emailId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></div>
+
+        <label for="usernameId">Username</label>
+        <input type="text" th:field="*{username}" id="usernameId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></div>
+
+        <label for="passwordId">Password</label>
+        <input type="text" th:field="*{password}" id="passwordId" required>
+        <div class="error-message" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></div>
+
+        <input type="submit" value="Register">
+    </form>
+
+    <div class="login-link">
+        <form th:method="GET" th:action="@{/auth/login}">
+            <input type="submit" value="Log in">
+        </form>
+    </div>
+</div>
 </body>
 </html>

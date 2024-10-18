@@ -15,7 +15,7 @@ public class CategoryService {
 
     public List<Category> getAll() {
         return jdbcTemplate.query(
-                "select * from category",
+                "select * from category order by id",
                 new BeanPropertyRowMapper<>(Category.class)
         );
     }

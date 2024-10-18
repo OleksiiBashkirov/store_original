@@ -3,16 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <title>category-new-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .form-container {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #343a40;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #495057;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .error-message {
+            color: red;
+            margin-bottom: 20px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-<p>NEW CATEGORY PAGE</p>
-<br>
-<form th:method="POST" th:action="@{/category}" th:object="${categoryNew}">
-    <label for="nameId">NAME</label>
-    <input type="text" th:field="*{name}" id="nameId">
-    <div style="color: red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
-    <br>
-    <input type="submit" value="Save">
-</form>
+<div class="form-container">
+    <h1>New Category</h1>
+    <form th:method="POST" th:action="@{/category}" th:object="${categoryNew}">
+        <label for="nameId">Category Name</label>
+        <input type="text" th:field="*{name}" id="nameId" placeholder="Enter category name">
+        <div class="error-message" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
+        <input type="submit" value="Save">
+    </form>
+</div>
+
 </body>
 </html>

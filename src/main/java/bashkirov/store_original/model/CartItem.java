@@ -12,5 +12,5 @@ public class CartItem {
     private int personId;
     private int productId;
     private int quantity;
-    private int orderId;
+    private Integer orderId;
 }

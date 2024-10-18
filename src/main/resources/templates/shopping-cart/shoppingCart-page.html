@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>shoppingCart-page</title>
+</head>
+<body>
+<p class="cart-title">Your Shopping Cart</p>
+<!-- Cart Items -->
+<div class="cart-items" th:each="cartItemDto : ${cartItemsListNotTakenReturnCartItemDto}">
+    <div class="cart-item">
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${cartItemDto.getProductPhotoDto().getProductPhoto().getUrl()})}">
+        <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getTitle()}"></p>
+        <form th:method="PUT" th:action="@{/cart/edit}">
+            <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
+            <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} - 1">
+            <button type="submit">➖</button>
+        </form>
+    </div>
+    <p th:text="${cartItemDto.getCartItem().getQuantity()}"></p>
+    <form th:method="PUT" th:action="@{/cart/edit}">
+        <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
+        <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} + 1">
+        <button type="submit">➕</button>
+    </form>
+    <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getPrice()}"></p>
+</div>
+
+<form th:method="GET" th:action="@{/product}">
+    <input type="submit" value="Продовжити покупки">
+</form>
+
+</body>
+</html>

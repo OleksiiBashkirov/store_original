@@ -3,14 +3,79 @@
 <head>
     <meta charset="UTF-8">
     <title>categories-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .categories-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 15px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .category-item {
+            background-color: white;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            cursor: pointer;
+            width: 170px;
+        }
+
+        .category-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .category-item form {
+            margin: 0;
+        }
+
+        .category-item input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: background-color 0.3s ease;
+        }
+
+        .category-item input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        h1 {
+            color: #343a40;
+            margin-bottom: 30px;
+        }
+    </style>
 </head>
 <body>
-<p>CATEGORIES PAGE</p>
-<div th:each="category : ${categoriesAll}">
-    <form th:method="GET" th:action="@{/product}">
-        <input type="hidden" name="categoryId" th:value="${category.getId()}" th:text="${category.getId()}">
-        <input type="submit" th:value="${category.getName()}">
-    </form>
+
+<h1>CATEGORIES PAGE</h1>
+<div class="categories-container">
+    <div class="category-item" th:each="category : ${categoriesAll}">
+        <form th:method="GET" th:action="@{/product}">
+            <input type="hidden" name="categoryId" th:value="${category.getId()}">
+            <input type="submit" th:value="${category.getName()}">
+        </form>
+    </div>
 </div>
+
 </body>
 </html>
