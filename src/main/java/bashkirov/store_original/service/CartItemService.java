@@ -42,8 +42,8 @@ public class CartItemService {
 
         if (cartItem.getPersonId() == person.getId()) {
             jdbcTemplate.update(
-                    "delete from cart_item where id = ?",
-                    cartItem.getId()
+                    "delete from cart_item where id = ?",       //!!!
+                    cartItem.getId()                                //!!!
             );
         } else {
             throw new AccessDeniedException("This cartItem with id= " + cartItemId + " not belongs to you");
@@ -140,7 +140,7 @@ public class CartItemService {
         }
     }
 
-    public Person getCurrentUser() {
+    private Person getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
             PersonDetails userDetails = (PersonDetails) authentication.getPrincipal();
@@ -189,5 +189,13 @@ public class CartItemService {
                 new BeanPropertyRowMapper<>(CartItem.class)
         ).stream().findAny();
         return optionalCartItem.isPresent();
+    }
+
+    public List<CartItem> getAllByOrderId(int orderId) {
+        return jdbcTemplate.query(
+                "select * from cart_item where order_id = ?",
+                new Object[]{orderId},
+                new BeanPropertyRowMapper<>(CartItem.class)
+        );
     }
 }

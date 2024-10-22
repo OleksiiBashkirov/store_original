@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>all</title>
+</head>
+<body>
+<p>ALL ORDERS</p>
+<form th:method="GET" th:action="@{/product}">
+    <input type="submit" value="Всі продукти">
+</form>
+<br>
+<div th:each="orderCartItemDto : ${ordersHistoryByUser}">
+    <a th:href="@{/order/{id}(id=${orderCartItemDto.getOrder().getId()})}"
+       th:text="${'Замовлення № ' + orderCartItemDto.getOrder().getId() + ', ' + orderCartItemDto.getOrder().getCreatedAt().toString()}"
+    ></a>
+</div>
+</body>
+</html>

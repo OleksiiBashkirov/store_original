@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Comment {
-    private Person person;
+    private int personId;
 
-    private Product product;
+    private int productId;
 
     private String comment;
 }

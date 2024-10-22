@@ -1,8 +1,7 @@
 package bashkirov.store_original.enumeration;
 
 public enum OrdersStatus {
-    NEW,
-    PENDING,
+    PENDING_PAYMENT,
     PAID,
     IN_PROCESS,
     DELIVERED,

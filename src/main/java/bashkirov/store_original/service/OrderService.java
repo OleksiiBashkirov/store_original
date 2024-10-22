@@ -1,18 +1,25 @@
 package bashkirov.store_original.service;
 
+import bashkirov.store_original.dto.OrderCartItemsDto;
 import bashkirov.store_original.enumeration.OrdersStatus;
 import bashkirov.store_original.model.CartItem;
 import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.model.Person;
 import bashkirov.store_original.model.Product;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.NoSuchElementException;
+import bashkirov.store_original.security.PersonDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.NoSuchElementException;
 
 @Service
 @RequiredArgsConstructor
@@ -37,12 +44,20 @@ public class OrderService {
         );
     }
 
-    public List<Orders> getAll(Person person) {
-        return jdbcTemplate.query(
-                "select * from orders where person_id = ?",
+    public List<OrderCartItemsDto> getAllByUser() {
+        Person person = getCurrentUser();
+        List<Orders> orderList = jdbcTemplate.query(
+                "select * from orders where person_id = ? order by created_at DESC",
                 new Object[]{person.getId()},
                 new BeanPropertyRowMapper<>(Orders.class)
         );
+
+        List<OrderCartItemsDto> orderCartItemsDtoList = new ArrayList<>();
+        for (Orders order : orderList) {
+            List<CartItem> cartItemList = cartItemService.getAllByOrderId(order.getId());
+            orderCartItemsDtoList.add(new OrderCartItemsDto(order, cartItemList));
+        }
+        return orderCartItemsDtoList;
     }
 
     public List<Orders> getAll() {
@@ -52,17 +67,20 @@ public class OrderService {
         );
     }
 
-    public void createOrder(Orders order, Person person) {
+    public void createOrder(Orders order) {
+        Person person = getCurrentUser();
         jdbcTemplate.update(
-                "insert into orders(person_id, status, created_at, delivery_address, comment) values (?,?,?,?,?)",
+                "insert into orders(person_id, status, created_at, delivery_address, comment, name, lastname, phone) values (?,?,?,?,?,?,?,?)",
                 person.getId(),
-                order.getOrdersStatus(),
-                order.getCreatedAt(),
+                OrdersStatus.PENDING_PAYMENT.toString(),
+                LocalDateTime.now(),
                 order.getDeliveryAddress(),
-                order.getComment()
+                order.getComment(),
+                order.getName(),
+                order.getLastname(),
+                order.getPhone()
         );
-        // в персона є товари в корзині (карт айтеми), всім в яких ордер_ід null
-        // призначити order_id + кількість кожного продукту зменшити на кількість його в корзині
+
         Orders orderLast = jdbcTemplate.query(
                         "select * from orders where person_id = ? order by created_at desc LIMIT 1",
                         new Object[]{person.getId()},
@@ -71,6 +89,7 @@ public class OrderService {
                 .orElseThrow(() -> new NoSuchElementException("Failed to find any order by personId= " + person.getId()));
 
         List<CartItem> cartItemListOrderNull = cartItemService.getAllNotTaken();
+
         for (CartItem cartItem : cartItemListOrderNull) {
             Product product = productService.getById(cartItem.getProductId());
             if (product.getCountLeft() >= cartItem.getQuantity()) {
@@ -84,6 +103,16 @@ public class OrderService {
                         orderLast.getId(),
                         cartItem.getId()
                 );
+                //якщо даного продукта залишилось хотяб 1 штука ми в корзині
+                // ставим кількість рівну залишку інакше видаляєм з корзини
+            } else if (product.getCountLeft() > 0) {
+                jdbcTemplate.update(
+                        "update cart_item set quantity = ? where id = ?",
+                        product.getCountLeft(),
+                        cartItem.getId()
+                );
+            } else {
+                cartItemService.delete(cartItem.getId());
             }
         }
     }
@@ -102,12 +131,10 @@ public class OrderService {
 
         List<Orders> ordersList = jdbcTemplate.query(
                 "select * from orders where status = ? and created_at < ?",
-                new Object[]{OrdersStatus.PENDING.toString(), cancelledDateTime},
+                new Object[]{OrdersStatus.PENDING_PAYMENT.toString(), cancelledDateTime},
                 new BeanPropertyRowMapper<>(Orders.class)
         );
-        // 104-111 пофіксити.
-        // коли скасовуємо замовлення всім продуктам вернути нормальну кількість,
-        // а всі картАйтем стерти ордерАйді
+
         for (Orders order : ordersList) {
             List<CartItem> cartItems = jdbcTemplate.query(
                     "select * from cart_item where order_id = ?",
@@ -134,5 +161,14 @@ public class OrderService {
                     order.getId()
             );
         }
+    }
+
+    private Person getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            PersonDetails userDetails = (PersonDetails) authentication.getPrincipal();
+            return userDetails.person();
+        }
+        return null;
     }
 }

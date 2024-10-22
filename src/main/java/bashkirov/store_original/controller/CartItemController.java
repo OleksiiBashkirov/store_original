@@ -26,14 +26,6 @@ public class CartItemController {
         return "redirect:/product/" + productId;
     }
 
-//    @PostMapping("/add/{id}")
-//    public String addAndRedirectToShoppingCart(
-//            @PathVariable("id") int id
-//    ) {
-//        cartItemService.add(id);
-//        return "shopping-cart/shoppingCart-page";
-//    }
-
     @GetMapping
     public String showShoppingCart(
             Model model
@@ -52,7 +44,7 @@ public class CartItemController {
         return "redirect:/cart";
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}")     //!!!!
     public String delete(
             @PathVariable("id") int id
     ) {

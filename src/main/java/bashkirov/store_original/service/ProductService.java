@@ -10,13 +10,12 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
-//генеруємо артикл для продукту , зберігаєм продукт , створюєм ключ, зберігаєм фотку,
+//генеруємо артикл для продукту, зберігаєм продукт , створюєм ключ, зберігаєм фотку
 @Service
 @RequiredArgsConstructor
 public class ProductService {
@@ -50,7 +49,6 @@ public class ProductService {
 
     public void save(Product product, MultipartFile file, boolean isPrimary, MultipartFile[] multipartFiles) {
         product.setArticle(generateArticle());
-//      збергіаємо продукт
         jdbcTemplate.update(
                 "insert into product(title, price, article, count_left, description, category_id) values (?,?,?,?,?, ?)",
                 product.getTitle(),
@@ -107,7 +105,7 @@ public class ProductService {
 
     public List<ProductPhotoDto> getAllProductPhotos() {
         List<Product> productList = getAll();
-        return transformProductToProductDto(productList);
+        return transformProductToProductPhotoDto(productList);
     }
 
     public List<ProductPhoto> getAllPhotoByProductId(int productId) {
@@ -118,7 +116,7 @@ public class ProductService {
         );
     }
 
-    private List<ProductPhotoDto> transformProductToProductDto(List<Product> productList) {
+    private List<ProductPhotoDto> transformProductToProductPhotoDto(List<Product> productList) {
         List<ProductPhotoDto> productPhotoDtoList = new ArrayList<>();
         for (Product product : productList) {
             ProductPhoto productPhoto = photoService.getPrimaryPhotoByProductId(product.getId());
@@ -136,10 +134,9 @@ public class ProductService {
 
     public void update(int id, Product product) {
         jdbcTemplate.update(
-                "update product set title = ?, price = ?, article = ?, count_left = ?, description = ?, category_id = ? where id = ?",
+                "update product set title = ?, price = ?, count_left = ?, description = ?, category_id = ? where id = ?",
                 product.getTitle(),
                 product.getPrice(),
-                product.getArticle(),
                 product.getCountLeft(),
                 product.getDescription(),
                 product.getCategoryId(),
@@ -178,7 +175,7 @@ public class ProductService {
             );
         }
 
-        return transformProductToProductDto(productList);
+        return transformProductToProductPhotoDto(productList);
     }
 
     public List<ProductPhotoDto> getAllByCategoryId(int categoryId) {
@@ -188,6 +185,23 @@ public class ProductService {
                 new Object[]{categoryId},
                 new BeanPropertyRowMapper<>(Product.class)
         );
-        return transformProductToProductDto(query);
+        return transformProductToProductPhotoDto(query);
     }
+
+//    public List<ProductPhotoDto> getProductPhotoDtoPaginated(int page, int size) {
+//        List<Product> productList = jdbcTemplate.query(
+//                "select * from product order by id LIMIT ? OFFSET ?",
+//                new Object[]{size, (page * size)},
+//                new BeanPropertyRowMapper<>(Product.class)
+//        );
+//        return transformProductToProductPhotoDto(productList);
+//    }
+//
+//    public int countProducts() {
+//        Integer count = jdbcTemplate.queryForObject(
+//                "select COUNT(*) from product",
+//                Integer.class
+//        );
+//        return count == null ? 0 : count;
+//    }
 }
