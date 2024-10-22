@@ -7,7 +7,7 @@
 <body>
 <p>ORDER NEW PAGE</p>
 <form th:method="POST" th:action="@{/order}" th:object="${orderNew}">
-    <label for="deliveryAddressId">Address</label>
+    <label for="deliveryAddressId">Address<d/label>
     <input type="text" th:field="*{deliveryAddress}" id="deliveryAddressId">
     <div style="color: red" th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}"></div>
     <br>

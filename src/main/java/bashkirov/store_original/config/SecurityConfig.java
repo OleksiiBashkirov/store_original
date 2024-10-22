@@ -26,7 +26,7 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers("/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/**", "/order/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/manager/**").hasRole("MANAGER")
                                 .requestMatchers("/auth/**", "/activate/**", "/error").permitAll()
                                 .anyRequest().authenticated()

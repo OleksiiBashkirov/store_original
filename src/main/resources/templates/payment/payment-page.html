@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>payment-page</title>
+</head>
+<body>
+<p>payment-page</p>
+
+<form th:method="GET" th:action="@{/order/{id}(id=${orderId})}">
+    <input type="submit" value="Повернутись до замовлення">
+</form>
+
+<form th:method="POST" th:action="@{/payment/{orderId}(orderId=${orderId})}" th:object="${paymentDto}">
+    <label for="bankCardId">Карта </label>
+    <input type="text" th:field="*{bankCart}" id="bankCardId">
+    <div style="color: red" th:if="${#fields.hasErrors('bankCart')}" th:errors="*{bankCart}"></div>
+    <br>
+    <label for="yearId">Рік </label>
+    <input type="text" th:field="*{year}" id="yearId">
+    <!--    <br>-->
+    <label for="monthId">Місяць </label>
+    <input type="text" th:field="*{month}" id="monthId">
+    <!--    <div style="color: red" th:if="${#fields.hasErrors('month')}" th:errors="*{month}"></div>-->
+    <div style="color: red" th:if="${#fields.hasErrors('year')}" th:errors="*{year}"></div>
+    <br>
+    <label for="cvvId">CVV </label>
+    <input type="text" th:field="*{cvvCode}" id="cvvId">
+    <div style="color: red" th:if="${#fields.hasErrors('cvvCode')}" th:errors="*{cvvCode}"></div>
+    <br>
+    <input type="submit" value="Оплатити">
+</form>
+</body>
+</html>

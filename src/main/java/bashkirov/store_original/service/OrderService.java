@@ -2,6 +2,7 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.dto.OrderCartItemsDto;
 import bashkirov.store_original.enumeration.OrdersStatus;
+import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.CartItem;
 import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.model.Person;
@@ -10,6 +11,7 @@ import bashkirov.store_original.security.PersonDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,15 +34,22 @@ public class OrderService {
         return jdbcTemplate.query(
                 "select * from orders where id = ?",
                 new Object[]{orderId},
-                new BeanPropertyRowMapper<>(Orders.class)
+                getOrdersRowMapper()
         ).stream().findAny().orElseThrow(() -> new NoSuchElementException("Failed to find order by id=" + orderId));
+    }
+
+    public OrderCartItemsDto getWithCartItemsDtoById(int orderId) {
+        Orders order = getById(orderId);
+        List<CartItem> cartItemList = cartItemService.getAllByOrderId(orderId);
+
+        return new OrderCartItemsDto(order, cartItemList);
     }
 
     public List<Orders> getAllByStatus(OrdersStatus status) {
         return jdbcTemplate.query(
                 "select * from orders where status = ?",
                 new Object[]{status.toString()},
-                new BeanPropertyRowMapper<>(Orders.class)
+                getOrdersRowMapper()
         );
     }
 
@@ -49,7 +58,8 @@ public class OrderService {
         List<Orders> orderList = jdbcTemplate.query(
                 "select * from orders where person_id = ? order by created_at DESC",
                 new Object[]{person.getId()},
-                new BeanPropertyRowMapper<>(Orders.class)
+                getOrdersRowMapper()
+//                new BeanPropertyRowMapper<>(Orders.class)
         );
 
         List<OrderCartItemsDto> orderCartItemsDtoList = new ArrayList<>();
@@ -63,8 +73,25 @@ public class OrderService {
     public List<Orders> getAll() {
         return jdbcTemplate.query(
                 "select * from orders",
-                new BeanPropertyRowMapper<>(Orders.class)
+                getOrdersRowMapper()
+//                new BeanPropertyRowMapper<>(Orders.class)
         );
+    }
+
+    private static RowMapper<Orders> getOrdersRowMapper() {
+        return (rs, rowNum) -> {
+            Orders order = new Orders();
+            order.setId(rs.getInt("id"));
+            order.setPersonId(rs.getInt("person_id"));
+            order.setOrdersStatus(OrdersStatus.valueOf(rs.getString("status")));
+            order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            order.setDeliveryAddress(rs.getString("delivery_address"));
+            order.setComment(rs.getString("comment"));
+            order.setName(rs.getString("name"));
+            order.setLastname(rs.getString("lastname"));
+            order.setPhone(rs.getString("phone"));
+            return order;
+        };
     }
 
     public void createOrder(Orders order) {

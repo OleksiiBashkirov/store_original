@@ -36,21 +36,19 @@ public class ProductController {
     public String search(
             @RequestParam(required = false, name = "key") String key,
             @RequestParam(required = false, name = "categoryId") Integer categoryId,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "0") int size,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
             Model model
     ) {
+        int totalProducts = productService.countProducts();
+        int totalPages = (int) Math.ceil((double) totalProducts / size);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("currentPage", page);
+
         model.addAttribute("categories", categoryService.getAll());
         model.addAttribute("key", key);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("searchList", productService.search(key, categoryId));
-
-//        int totalProducts = productService.countProducts();
-//        int totalPages = (int) Math.ceil((double) totalProducts / size);
-//        model.addAttribute("totalPages", totalPages);
-//        model.addAttribute("currentPage", page);
-//        model.addAttribute("productPhotoDtoList",
-//                productService.getProductPhotoDtoPaginated(page, size));
+        model.addAttribute("searchList", productService.search(key, categoryId, page, size));
 
         return "product/products-page";
     }

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>order-admin-page</title>
+</head>
+<body>
+<p>order-admin-page</p>
+<form th:method="GET" th:action="@{/order/all-orders}">
+    <input type="submit" value="Повернутись">
+</form>
+
+<div>
+    <p th:text="${'Order ID= ' + orderByIdWithCartItemsList.getOrder().getId()}"></p>
+    <p th:text="${'Person ID: ' + orderByIdWithCartItemsList.getOrder().getPersonId()}"></p>
+    <form th:method="PUT" th:action="@{/order/admin/{orderId}(orderId=${orderId})}">
+        <select name="orderStatus" id="statusId">
+            <option th:each="status : ${statusList}"
+                    th:value="${status}"
+                    th:text="${status.toString()}"
+                    th:selected="${status.toString().equals(orderByIdWithCartItemsList.getOrder().getOrdersStatus().toString())}"
+            >
+            </option>
+        </select>
+        <input type="submit" value="Змінити">
+
+    </form>
+    <p th:text="${'Created at= ' + orderByIdWithCartItemsList.getOrder().getCreatedAt()}"></p>
+    <p th:text="${'Delivery address= ' + orderByIdWithCartItemsList.getOrder().getDeliveryAddress()}"></p>
+    <p th:text="${'Comment= ' + orderByIdWithCartItemsList.getOrder().getComment()}"></p>
+    <p th:text="${'Name= ' + orderByIdWithCartItemsList.getOrder().getName()}"></p>
+    <p th:text="${'Lastname= ' + orderByIdWithCartItemsList.getOrder().getLastname()}"></p>
+    <p th:text="${'Phone= ' + orderByIdWithCartItemsList.getOrder().getPhone()}"></p>
+</div>
+
+</body>
+</html>

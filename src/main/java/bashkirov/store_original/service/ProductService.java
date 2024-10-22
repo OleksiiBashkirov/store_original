@@ -96,15 +96,16 @@ public class ProductService {
         ).stream().findAny().orElseThrow(() -> new NoSuchElementException("Failed to get product by id=" + id));
     }
 
-    public List<Product> getAll() {
+    public List<Product> getAll(int page, int size) {
         return jdbcTemplate.query(
-                "select p.* from product p join category c on p.category_id=c.id order by p.id",
+                "select p.* from product p join category c on p.category_id=c.id order by p.id LIMIT ? OFFSET ?",
+                new Object[]{size, (page * size)},
                 ProductService.getProductRowMapper()
         );
     }
 
-    public List<ProductPhotoDto> getAllProductPhotos() {
-        List<Product> productList = getAll();
+    public List<ProductPhotoDto> getAllProductPhotos(int page, int size) {
+        List<Product> productList = getAll(page, size);
         return transformProductToProductPhotoDto(productList);
     }
 
@@ -151,44 +152,7 @@ public class ProductService {
         );
     }
 
-    public List<ProductPhotoDto> search(String key, Integer categoryId) {
-        if (key == null || key.isBlank()) {
-            if (categoryId != null) {
-                return getAllByCategoryId(categoryId);
-            }
-            return getAllProductPhotos();
-        }
-        String iLikeQuery = "%" + key + "%";
-
-        List<Product> productList = null;
-        if (categoryId == null) {
-            productList = jdbcTemplate.query(
-                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? order by id",
-                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery},
-                    new BeanPropertyRowMapper<>(Product.class)
-            );
-        } else {
-            productList = jdbcTemplate.query(
-                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? AND category_id = ? order by id",
-                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery, categoryId},
-                    new BeanPropertyRowMapper<>(Product.class)
-            );
-        }
-
-        return transformProductToProductPhotoDto(productList);
-    }
-
-    public List<ProductPhotoDto> getAllByCategoryId(int categoryId) {
-
-        List<Product> query = jdbcTemplate.query(
-                "select * from product where category_id = ? order by id",
-                new Object[]{categoryId},
-                new BeanPropertyRowMapper<>(Product.class)
-        );
-        return transformProductToProductPhotoDto(query);
-    }
-
-//    public List<ProductPhotoDto> getProductPhotoDtoPaginated(int page, int size) {
+    //    public List<ProductPhotoDto> getProductPhotoDtoPaginated(int page, int size) {
 //        List<Product> productList = jdbcTemplate.query(
 //                "select * from product order by id LIMIT ? OFFSET ?",
 //                new Object[]{size, (page * size)},
@@ -196,12 +160,49 @@ public class ProductService {
 //        );
 //        return transformProductToProductPhotoDto(productList);
 //    }
-//
-//    public int countProducts() {
-//        Integer count = jdbcTemplate.queryForObject(
-//                "select COUNT(*) from product",
-//                Integer.class
-//        );
-//        return count == null ? 0 : count;
-//    }
+
+    public List<ProductPhotoDto> search(String key, Integer categoryId, int page, int size) {
+        if (key == null || key.isBlank()) {
+            if (categoryId != null) {
+                return getAllByCategoryId(categoryId, page, size);
+            }
+            return getAllProductPhotos(page, size);
+        }
+        String iLikeQuery = "%" + key + "%";
+
+        List<Product> productList = null;
+        if (categoryId == null) {
+            productList = jdbcTemplate.query(
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? order by id LIMIT ? OFFSET ?",
+                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery, size, (page * size)},
+                    new BeanPropertyRowMapper<>(Product.class)
+            );
+        } else {
+            productList = jdbcTemplate.query(
+                    "select * from product where title ILIKE ? OR article ILIKE ? OR description ILIKE ? AND category_id = ? order by id LIMIT ? OFFSET ?",
+                    new Object[]{iLikeQuery, iLikeQuery, iLikeQuery, categoryId,  size, (page * size)},
+                    new BeanPropertyRowMapper<>(Product.class)
+            );
+        }
+
+        return transformProductToProductPhotoDto(productList);
+    }
+
+    public List<ProductPhotoDto> getAllByCategoryId(int categoryId, int page, int size) {
+
+        List<Product> query = jdbcTemplate.query(
+                "select * from product where category_id = ? order by id LIMIT ? OFFSET ?",
+                new Object[]{categoryId, size, (page * size)},
+                new BeanPropertyRowMapper<>(Product.class)
+        );
+        return transformProductToProductPhotoDto(query);
+    }
+
+    public int countProducts() {
+        Integer count = jdbcTemplate.queryForObject(
+                "select COUNT(*) from product",
+                Integer.class
+        );
+        return count == null ? 0 : count;
+    }
 }

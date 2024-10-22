@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>all</title>
+    <title>orders-page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -27,27 +27,6 @@
             margin-bottom: 20px;
         }
 
-        .form-container {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .form-container input[type="submit"] {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
-        }
-
-        .form-container input[type="submit"]:hover {
-            background-color: #0056b3;
-        }
-
-
         .order-list {
             list-style: none;
             padding: 0;
@@ -58,17 +37,32 @@
             margin-bottom: 10px;
             padding: 15px;
             border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
 
         .order-list li:hover {
             background-color: #e6e6e6;
             transform: scale(1.02);
         }
+
+        .order-info {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        .order-info p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .order-info p span {
+            font-weight: bold;
+        }
+
 
         .order-list a {
             text-decoration: none;
@@ -81,29 +75,36 @@
             text-decoration: underline;
         }
 
-        .order-list .icon {
+        .icon {
             color: #333;
-            font-size: 16px;
+            font-size: 20px;
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <h1>ALL ORDERS</h1>
-    <div class="form-container">
-        <form th:method="GET" th:action="@{/product}">
-            <input type="submit" value="Всі продукти">
-        </form>
-    </div>
-
-    <ul class="order-list" th:each="orderCartItemDto : ${ordersHistoryByUser}">
+    <h1>All Orders(Admin View)</h1>
+    <ul class="order-list" th:if="${admin}" th:each="order : ${ordersAll}">
         <li>
-            <a th:href="@{/order/{id}(id=${orderCartItemDto.getOrder().getId()})}"
-               th:text="${'Замовлення № ' + orderCartItemDto.getOrder().getId() + ', ' + orderCartItemDto.getOrder().getCreatedAt().toString()}"
-            ></a>
-            <i class="fas fa-arrow-right icon"></i>
+            <div class="order-info">
+                <a th:href="@{/order/admin/{id}(id=${order.getId()})}"
+                   th:text="${order.getId() + '. Person Id= ' + order.getPersonId() + ', status= ' + order.getOrdersStatus().toString()
+        + ', created at= ' + order.getCreatedAt().toString() + ', delivery address= ' + order.getDeliveryAddress() +
+        ', comment= ' + order.getComment() + ', name= ' + order.getName() + ', lastname= ' + order.getLastname() + ', phone= '
+        + order.getPhone()}">
+                    <i class="fas fa-arrow-right icon"></i>
+                </a>
+            </div>
         </li>
     </ul>
 </div>
+
+
+<!--<p>orders-page</p>-->
+<!--<div th:if="${admin}">-->
+<!--    <div th:each="order : ${ordersAll}">-->
+<!--    </div>-->
+<!--</div>-->
+
 </body>
 </html>

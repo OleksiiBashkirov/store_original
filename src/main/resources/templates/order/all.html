@@ -2,18 +2,108 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>all</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .form-container {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .form-container input[type="submit"] {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+
+        .order-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .order-list li {
+            background-color: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .order-list li:hover {
+            background-color: #e6e6e6;
+            transform: scale(1.02);
+        }
+
+        .order-list a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .order-list a:hover {
+            text-decoration: underline;
+        }
+
+        .order-list .icon {
+            color: #333;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-<p>ALL ORDERS</p>
-<form th:method="GET" th:action="@{/product}">
-    <input type="submit" value="Всі продукти">
-</form>
-<br>
-<div th:each="orderCartItemDto : ${ordersHistoryByUser}">
-    <a th:href="@{/order/{id}(id=${orderCartItemDto.getOrder().getId()})}"
-       th:text="${'Замовлення № ' + orderCartItemDto.getOrder().getId() + ', ' + orderCartItemDto.getOrder().getCreatedAt().toString()}"
-    ></a>
+<div class="container">
+    <h1>ALL ORDERS</h1>
+    <div class="form-container">
+        <form th:method="GET" th:action="@{/product}">
+            <input type="submit" value="Всі продукти">
+        </form>
+    </div>
+
+    <ul class="order-list" th:each="orderCartItemDto : ${ordersHistoryByUser}">
+        <li>
+            <a th:href="@{/order/{id}(id=${orderCartItemDto.getOrder().getId()})}"
+               th:text="${'Замовлення № ' + orderCartItemDto.getOrder().getId() + ', ' + orderCartItemDto.getOrder().getCreatedAt().toString()}"
+            ></a>
+            <i class="fas fa-arrow-right icon"></i>
+        </li>
+    </ul>
 </div>
 </body>
 </html>

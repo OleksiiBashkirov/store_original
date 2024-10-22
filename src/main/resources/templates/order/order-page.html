@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>order-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+            letter-spacing: 1px;
+        }
+
+        .order-details, .cart-items {
+            margin-bottom: 30px;
+        }
+
+        .order-details p, .cart-items p {
+            margin: 15px 0;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+        }
+
+        .order-details p span {
+            margin-left: 10px;
+            color: #555;
+        }
+
+        .cart-item {
+            background-color: #fafafa;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .back-button {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .back-button a {
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-size: 18px;
+            display: inline-flex;
+            align-items: center;
+        }
+
+        .back-button a:hover {
+            background-color: #0056b3;
+        }
+
+        .back-button i {
+            margin-right: 10px;
+        }
+
+        .icon {
+            font-size: 20px;
+            color: #007bff;
+            margin-right: 10px;
+        }
+
+        h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Order Details</h1>
+
+    <div class="order-details" th:if="${orderByIdWithCartItemsList.getOrder() != null}">
+        <p><i class="fas fa-id-badge icon"></i> <span
+                th:text="${'Order ID= ' + orderByIdWithCartItemsList.getOrder().getId()}"></span></p>
+        <p><i class="fas fa-user icon"></i> <span
+                th:text="${'Person ID: ' + orderByIdWithCartItemsList.getOrder().getPersonId()}"></span></p>
+        <p><i class="fas fa-info-circle icon"></i> <span
+                th:text="${'Status= ' + orderByIdWithCartItemsList.getOrder().getOrdersStatus()}"></span></p>
+        <p><i class="fas fa-calendar-alt icon"></i> <span
+                th:text="${'Created at= ' + orderByIdWithCartItemsList.getOrder().getCreatedAt()}"></span></p>
+        <p><i class="fas fa-map-marker-alt icon"></i> <span
+                th:text="${'Delivery address= ' + orderByIdWithCartItemsList.getOrder().getDeliveryAddress()}"></span>
+        </p>
+        <p><i class="fas fa-comment-dots icon"></i> <span
+                th:text="${'Comment= ' + orderByIdWithCartItemsList.getOrder().getComment()}"></span></p>
+        <p><i class="fas fa-user icon"></i> <span
+                th:text="${'Name= ' + orderByIdWithCartItemsList.getOrder().getName()}"></span></p>
+        <p><i class="fas fa-user icon"></i> <span
+                th:text="${'Lastname= ' + orderByIdWithCartItemsList.getOrder().getLastname()}"></span></p>
+        <p><i class="fas fa-phone icon"></i> <span
+                th:text="${'Phone= ' + orderByIdWithCartItemsList.getOrder().getPhone()}"></span></p>
+    </div>
+
+    <div class="cart-items" th:if="${orderByIdWithCartItemsList.getCartItems() != null}">
+        <h2>Products in Order</h2>
+        <div th:each="item : ${orderByIdWithCartItemsList.getCartItems()}" class="cart-item">
+            <p><i class="fas fa-box icon"></i> <span th:text="${'Product id= ' + item.getProductId()}"></span></p>
+            <p><i class="fas fa-sort-numeric-up icon"></i> <span
+                    th:text="${'Quantity= '+ item.getQuantity()}"></span></p>
+        </div>
+    </div>
+
+    <div th:if="${isPending}">
+        <form th:method="GET" th:action="@{/payment/{orderId}(orderId=${orderId})}">
+            <input type="submit" value="Оплатити">
+        </form>
+    </div>
+
+    <div class="back-button">
+        <a th:href="@{/order}"><i class="fas fa-arrow-left icon"></i> Back to Orders</a>
+    </div>
+</div>
+</body>
+</html>
