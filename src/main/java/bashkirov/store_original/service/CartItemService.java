@@ -33,8 +33,8 @@ public class CartItemService {
     public void delete(int cartItemId) {
         Person person = getCurrentUser();
         CartItem cartItem = jdbcTemplate.query(
-                "select * from cart_item where person_id = ?",
-                new Object[]{person.getId()},
+                "select * from cart_item where id = ? AND person_id = ?",
+                new Object[]{cartItemId, person.getId()},
                 new BeanPropertyRowMapper<>(CartItem.class)
         ).stream().findAny().orElseThrow(
                 () -> new CartItemNotFoundException("Cart item not found by person id=" + person.getId())
@@ -43,7 +43,7 @@ public class CartItemService {
         if (cartItem.getPersonId() == person.getId()) {
             jdbcTemplate.update(
                     "delete from cart_item where id = ?",       //!!!
-                    cartItem.getId()                                //!!!
+                    cartItemId                                //!!!
             );
         } else {
             throw new AccessDeniedException("This cartItem with id= " + cartItemId + " not belongs to you");
@@ -106,7 +106,16 @@ public class CartItemService {
         Optional<CartItem> optionalCartItem = jdbcTemplate.query(
                 "select * from cart_item where id = ?",
                 new Object[]{cartItemId},
-                new BeanPropertyRowMapper<>(CartItem.class)
+                (rs, rowNum) -> {
+                    CartItem cartItem = new CartItem();
+                    cartItem.setId(rs.getInt("id"));
+                    cartItem.setPersonId(rs.getInt("person_id"));
+                    cartItem.setProductId(rs.getInt("product_id"));
+                    cartItem.setQuantity(rs.getInt("quantity"));
+                    cartItem.setOrderId(rs.getInt("order_id"));
+                    return cartItem;
+                }
+//                new BeanPropertyRowMapper<>(CartItem.class)
         ).stream().findAny();
 
         Person person = getCurrentUser();
@@ -127,7 +136,7 @@ public class CartItemService {
                 throw new IllegalArgumentException("Product left = " + product.getCountLeft() + ". You should order this quantity or less");
             }
 
-            if (quantityNew <= 0) {
+            if (quantityNew < 1) {
                 delete(cartItem.getId());
                 return;
             }

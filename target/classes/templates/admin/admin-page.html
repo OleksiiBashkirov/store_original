@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>admin-page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 15px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: #007bff;
+            transform: scale(1.05);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .list {
+            margin-top: 20px;
+        }
+
+        .list a {
+            display: block;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #e6f2ff;
+            border-radius: 8px;
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .list a:hover {
+            background-color: #cce7ff;
+            transform: scale(1.02);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Адмін Панель</h1>
+
+    <div class="btn-container">
+        <form method="GET" th:action="@{/order/all-orders}">
+            <button type="submit" class="btn">Всі замолення</button>
+        </form>
+        <form method="GET" th:action="@{/admin/users}">
+            <button type="submit" class="btn">Всі користувачі</button>
+        </form>
+        <form action="GEt" th:action="@{/product}">
+            <button type="submit" class="btn">Продукти</button>
+        </form>
+    </div>
+
+    <h2>Список адміністраторів</h2>
+    <div class="list" th:each="admin : ${adminsList}">
+        <a th:href="@{/person/{id}(id=${person.getId()})}"
+           th:text="${admin.getId() + '. Name: ' + admin.getName() + ', lastname= ' + admin.getLastname() + ', phone= ' + admin.getPhone()}"
+        ></a>
+    </div>
+
+    <h2>Список менеджерів</h2>
+    <div class="list" th:each="manager : ${managersList}">
+        <a th:href="@{person/{id}(id=${person.getId()})}"
+           th:text="${manager.getId() + '. Name: ' + manager.getName() + ', lastname= ' + manager.getLastname() + ', phone= ' + manager.getPhone()}"
+        ></a>
+    </div>
+</div>
+
+<!--
+только кнопки:
+1. увидеть все заказы
+2. страница с ролями всех всех: админы, менеджеры, юзеры
+3. все заказы конкретного персона -> через клікабельний список всіх юзерів,
+
+-->
+</body>
+</html>

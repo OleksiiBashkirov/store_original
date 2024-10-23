@@ -1,6 +1,8 @@
 package bashkirov.store_original.controller;
 
+import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Product;
+import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.CartItemService;
 import bashkirov.store_original.service.CategoryService;
 import bashkirov.store_original.service.PhotoService;
@@ -9,6 +11,7 @@ import bashkirov.store_original.validation.ProductValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -38,8 +41,13 @@ public class ProductController {
             @RequestParam(required = false, name = "categoryId") Integer categoryId,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
-            Model model
-    ) {
+            Model model,
+            @AuthenticationPrincipal PersonDetails personDetails
+            ) {
+        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
+            model.addAttribute("admin", true);
+        }
+
         int totalProducts = productService.countProducts();
         int totalPages = (int) Math.ceil((double) totalProducts / size);
         model.addAttribute("totalPages", totalPages);

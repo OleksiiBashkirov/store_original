@@ -2,7 +2,6 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.dto.OrderCartItemsDto;
 import bashkirov.store_original.enumeration.OrdersStatus;
-import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.CartItem;
 import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.model.Person;
@@ -72,9 +71,29 @@ public class OrderService {
 
     public List<Orders> getAll() {
         return jdbcTemplate.query(
-                "select * from orders",
+                "select * from orders order by id DESC",
                 getOrdersRowMapper()
-//                new BeanPropertyRowMapper<>(Orders.class)
+        );
+    }
+
+    public List<Orders> getAllSortedByOrderIdAsc() {
+        return jdbcTemplate.query(
+                "select * from orders order by id",
+                getOrdersRowMapper()
+        );
+    }
+
+    public List<Orders> getAllSortedByCreatedAtAsc() {
+        return jdbcTemplate.query(
+                "select * from orders order by created_at",
+                getOrdersRowMapper()
+        );
+    }
+
+    public List<Orders> getAllSortedByCreatedAtDesc() {
+        return jdbcTemplate.query(
+                "select * from orders order by created_at DESC",
+                getOrdersRowMapper()
         );
     }
 

@@ -2,38 +2,190 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>shoppingCart-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .cart-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .cart-item-info {
+            flex: 1;
+            margin-left: 30px;
+        }
+
+        .cart-item-info p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .quantity-control button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        .quantity-control button:hover {
+            background-color: #0056b3;
+        }
+
+        .cart-total {
+            text-align: right;
+            font-size: 20px;
+            margin-top: 20px;
+            color: #333;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .button-group input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .button-group input[type="submit"]:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .continue-shopping {
+            background-color: #007bff;
+        }
+
+        .continue-shopping:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-<p class="cart-title">Your Shopping Cart</p>
-<!-- Cart Items -->
-<form th:method="GET" th:action="@{/product}">
-    <input type="submit" value="Продовжити покупки">
-</form>
-<br>
-<div class="cart-items" th:each="cartItemDto : ${cartItemsListNotTakenReturnCartItemDto}">
-    <div class="cart-item">
-        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${cartItemDto.getProductPhotoDto().getProductPhoto().getUrl()})}">
-        <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getTitle()}"></p>
-        <form th:method="PUT" th:action="@{/cart/edit}">
-            <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
-            <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} - 1">
-            <button type="submit">➖</button>
+<div class="container">
+    <h1>Ваш кошик</h1>
+
+    <div th:each="cartItemDto : ${cartItemsListNotTakenReturnCartItemDto}" class="cart-item">
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${cartItemDto.getProductPhotoDto().getProductPhoto().getUrl()})}"
+             alt="Product Image">
+
+        <div class="cart-item-info">
+            <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getTitle()}"></p>
+            <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getPrice() + '$'}"></p>
+        </div>
+
+        <div class="quantity-control">
+            <form th:method="PUT" th:action="@{/cart/edit}">
+                <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
+                <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} - 1">
+                <button type="submit">➖</button>
+            </form>
+
+            <p th:text="${cartItemDto.getCartItem().getQuantity()}"></p>
+
+            <form th:method="PUT" th:action="@{/cart/edit}">
+                <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
+                <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} + 1">
+                <button type="submit">➕</button>
+            </form>
+        </div>
+    </div>
+    <!--        <div class="cart-total">-->
+    <!--            <p>Загальна сума: <span th:text="${totalAmount} + ' $'"></span></p>-->
+    <!--        </div>-->
+    <div class="button-group">
+        <form th:method="GET" th:action="@{/product}">
+            <input type="submit" value="Продовжити покупки" class="continue-shopping">
+        </form>
+
+        <form th:method="GET" th:action="@{/order/new}">
+            <input type="submit" value="Оформити замовлення">
         </form>
     </div>
-    <p th:text="${cartItemDto.getCartItem().getQuantity()}"></p>
-    <form th:method="PUT" th:action="@{/cart/edit}">
-        <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">
-        <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} + 1">
-        <button type="submit">➕</button>
-    </form>
-    <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getPrice()}"></p>
 </div>
-
-<form th:method="GET" th:action="@{/order/new}">
-    <input type="submit" value="Оформити замовлення">
-</form>
-
+<!--<p class="cart-title">Your Shopping Cart</p>-->
+<!-- Cart Items -->
+<!--<form th:method="GET" th:action="@{/product}">-->
+<!--    <input type="submit" value="Продовжити покупки">-->
+<!--</form>-->
+<!--<br>-->
+<!--<div class="cart-items" th:each="cartItemDto : ${cartItemsListNotTakenReturnCartItemDto}">-->
+<!--    <div class="cart-item">-->
+<!--        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${cartItemDto.getProductPhotoDto().getProductPhoto().getUrl()})}">-->
+<!--        <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getTitle()}"></p>-->
+<!--        <form th:method="PUT" th:action="@{/cart/edit}">-->
+<!--            <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">-->
+<!--            <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} - 1">-->
+<!--            <button type="submit">➖</button>-->
+<!--        </form>-->
+<!--    </div>-->
+<!--    <p th:text="${cartItemDto.getCartItem().getQuantity()}"></p>-->
+<!--    <form th:method="PUT" th:action="@{/cart/edit}">-->
+<!--        <input type="hidden" name="cartItemId" th:value="${cartItemDto.getCartItem().getId()}">-->
+<!--        <input type="hidden" name="quantityNew" th:value="${cartItemDto.getCartItem().getQuantity()} + 1">-->
+<!--        <button type="submit">➕</button>-->
+<!--    </form>-->
+<!--    <p th:text="${cartItemDto.getProductPhotoDto().getProduct().getPrice()}"></p>-->
+<!--</div>-->
+<!---->
+<!--<form th:method="GET" th:action="@{/order/new}">-->
+<!--    <input type="submit" value="Оформити замовлення">-->
+<!--</form>-->
 
 </body>
 </html>

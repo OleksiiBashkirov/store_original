@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.util.List;
+
 @Controller
 @RequestMapping("/order")
 @RequiredArgsConstructor
@@ -39,18 +41,21 @@ public class OrderController {
         order.setPhone(person.getPhone());
         order.setDeliveryAddress(person.getAddress());
         model.addAttribute("orderNew", order);
+
         return "order/order-new-page";
     }
 
     @PostMapping
     public String save(
             @Valid @ModelAttribute("orderNew") Orders orderNew,
-            BindingResult bindingResult
+            BindingResult bindingResult,
+            Model model
     ) {
         if (bindingResult.hasErrors()) {
             return "order/order-new-page";
         }
         orderService.createOrder(orderNew);
+
         return "redirect:/product";
     }
 
@@ -60,7 +65,7 @@ public class OrderController {
     ) {
         model.addAttribute("ordersHistoryByUser", orderService.getAllByUser());
 
-        return "order/all";
+        return "order/user-orders";
     }
 
     @GetMapping("/{orderId}")
@@ -68,7 +73,6 @@ public class OrderController {
             @PathVariable("orderId") int orderId,
             Model model
     ) {
-
         OrderCartItemsDto cartItemsDtoById = orderService.getWithCartItemsDtoById(orderId);
         model.addAttribute("isPending", cartItemsDtoById.getOrder()
                 .getOrdersStatus().equals(OrdersStatus.PENDING_PAYMENT));
@@ -77,35 +81,39 @@ public class OrderController {
         return "order/order-page";
     }
 
-    //ДЗ: зробити сторінку одного замовлення поки кнопок там ніяких не давати,
-    // для адміна зробити сторінку всіх замовлень,
-    // там можна фільтрувати по статусам (кнопок поки не добавляти і всюда гарні стилі)
-
     @GetMapping("/all-orders")
     public String showAllOrders(
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "desc") String order,
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
         if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
             model.addAttribute("admin", true);
-        } else {
-            model.addAttribute("admin", false);
         }
-        model.addAttribute("ordersAll", orderService.getAll());
-        return "order/orders-page";
+        List<Orders> ordersList;
+        if (sortBy.equals("id")) {
+            ordersList = order.equals("asc") ? orderService.getAllSortedByOrderIdAsc()
+                    : orderService.getAll();
+        } else if (sortBy.equals("created_at")) {
+            ordersList = order.equals("asc") ? orderService.getAllSortedByCreatedAtAsc()
+                    : orderService.getAllSortedByCreatedAtDesc();
+        } else {
+            ordersList = orderService.getAll();
+        }
+
+        model.addAttribute("ordersAll", ordersList);
+        return "order/all-orders-page";
     }
-    //коли користувач загодить на своє замовлення і воно не оплачене має бути кнопка оплатити замовлення
-    // далі ми попадаєм на сторінку оплати де користувач вводить валідні дані карточки
-    // і нажимає знов оплатити після чого статус міняється на оплачений
-//*********************************************************************************************************
 
-    //це в нас готова сторінка для юзера
-    // тепер треба для адміна зробити теж сторінку замовлення
+//***********************************************************************************
+    // + треба для адміна зробити теж сторінку замовлення
     // але адмін на ній зможе сам вибирати любий статус який йому до вподоби
-
+//***********************************************************************************
     // а також буде кнопка видалити замовлення,
-    // також якщо встигнем буде поле
-    // через яке ми зможем відправити лист на пошту даній людині
+    // також поле через яке ми зможем відправити лист на пошту даній людині
+//***********************************************************************************
+
     @GetMapping("/admin/{orderId}")
     public String showAdminOrderPage(
             @PathVariable("orderId") int orderId,

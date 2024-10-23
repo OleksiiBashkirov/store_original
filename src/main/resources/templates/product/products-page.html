@@ -22,23 +22,41 @@
             margin-bottom: 20px;
         }
 
-        .header form {
-            margin: 0;
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .logout-btn input,
+        .admin-btn input {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
 
         .logout-btn input {
             background-color: #007bff;
             color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            transition: background-color 0.3s ease;
         }
 
         .logout-btn input:hover {
             background-color: #0056b3;
+        }
+
+        .admin-btn input {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .admin-btn input:hover {
+            background-color: #e0a800;
+        }
+
+        .header form {
+            margin: 0;
         }
 
         .search-bar {
@@ -180,11 +198,15 @@
 </head>
 <body>
 <div class="header">
-    <!-- logout button -->
-    <form th:method="GET" th:action="@{/auth/logout}" class="logout-btn">
-        <input type="submit" value="Log out">
-    </form>
-
+    <div class="button-group">
+        <!-- logout button -->
+        <form th:method="GET" th:action="@{/auth/logout}" class="logout-btn">
+            <input type="submit" value="Log out">
+        </form>
+        <form th:if="${admin}" th:method="GET" th:action="@{/admin}" class="admin-btn">
+            <input type="submit" value="Admin">
+        </form>
+    </div>
 
     <!-- Search Form -->
     <form th:method="GET" th:action="@{/product}" class="search-bar">
@@ -251,14 +273,6 @@
        th:href="@{'/product?page=' + ${currentPage + 1} + '&size=' + 10}"
        class="pagination-link"> Наступна ⏩</a>
 </div>
-
-<!--<ul>-->
-<!--    <li th:each="i : ${#numbers.sequence(0, totalPages - 1)}" style="display: inline; margin-left: 10px;">-->
-<!--        <a th:href="@{'product?page=' + ${i} + '&size='+ 10}" th:classappend="${i==currentPage}?'active':''">-->
-<!--            <span th:text="${i+1}">Page</span>-->
-<!--        </a>-->
-<!--    </li>-->
-<!--</ul>-->
 
 </body>
 </html>

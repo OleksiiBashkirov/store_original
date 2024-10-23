@@ -4,6 +4,7 @@ import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Person;
 import bashkirov.store_original.security.PersonDetails;
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -44,6 +46,30 @@ public class PersonDetailsService implements UserDetailsService {
                 getPersonRowMapper()
 
         ).stream().findAny();
+    }
+
+    public List<Person> getAllAdmins() {
+        return jdbcTemplate.query(
+                "select * from person where role = ?",
+                new Object[]{Role.ROLE_ADMIN.toString()},
+                new BeanPropertyRowMapper<>(Person.class)
+        );
+    }
+
+    public List<Person> getAllManagers() {
+        return jdbcTemplate.query(
+                "select * from person where role = ?",
+                new Object[]{Role.ROLE_MANAGER.toString()},
+                new BeanPropertyRowMapper<>(Person.class)
+        );
+    }
+
+    public List<Person> getAllUsers() {
+        return jdbcTemplate.query(
+                "select * from person where role = ?",
+                new Object[]{Role.ROLE_USER.toString()},
+                new BeanPropertyRowMapper<>(Person.class)
+        );
     }
 
     private static RowMapper<Person> getPersonRowMapper() {
