@@ -273,8 +273,7 @@
 
         <!-- Кнопки для додавання в корзину і перегляду -->
         <div class="product-footer">
-            <a class="details-btn" th:href="@{/product/{id} (id=${productPhotoDto.getProduct().getId()})}">View
-                Details</a>
+            <a class="details-btn" th:href="@{/product/{id} (id=${productPhotoDto.getProduct().getId()})}">Детальніше</a>
             <form class="cart-btn" th:method="POST" th:action="@{/cart}">
                 <input type="hidden" name="productId" th:value="${productPhotoDto.getProduct().getId()}">
                 <button type="submit">🛒</button>

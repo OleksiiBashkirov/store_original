@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>list-users-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            text-align: left;
+            margin: 20px 0;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .btn-return:active {
+            transform: scale(0.98);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #e6f2ff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        tbody tr {
+            transition: background-color 0.2s ease;
+        }
+
+        tbody tr:hover {
+            background-color: #d0e9ff;
+        }
+
+        .view-orders-btn {
+            padding: 8px 15px;
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .view-orders-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .view-orders-btn:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn-container">
+        <form th:method="GET" th:action="@{/admin}">
+            <button type="submit" class="btn-return">Повернутись</button>
+        </form>
+    </div>
+
+    <h1>Список Користувачів</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Імя</th>
+            <th>Прізвище</th>
+            <th>Адреса</th>
+            <th>Телефон</th>
+            <th>Email</th>
+            <th>Username</th>
+            <th>Активний</th>
+            <th>Замовлення</th>
+            <th>Дія</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="user : ${usersList}">
+            <td th:text="${user.getId()}"></td>
+            <td th:text="${user.getName()}"></td>
+            <td th:text="${user.getLastname()}"></td>
+            <td th:text="${user.getAddress()}"></td>
+            <td th:text="${user.getPhone()}"></td>
+            <td th:text="${user.getEmail()}"></td>
+            <td th:text="${user.getUsername()}"></td>
+            <td th:text="${user.isEnable() ? 'Ні' : 'Так'}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/order}">
+                    <input type="hidden" name="userId" th:value="${user.getId()}">
+                    <button type="submit" class="view-orders-btn">Всі замовлення</button>
+                </form>
+            </td>
+            <td>
+                <form th:method="PATCH" th:action="@{/admin/add}">
+                    <input type="hidden" name="personId" th:value="${user.getId()}">
+                    <button type="submit" class="view-orders-btn">Призначити адміном</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+</body>
+</html>

@@ -85,16 +85,10 @@
             margin: 5px 0;
         }
 
-        /*.edit-button {*/
-        /*    justify-content: center;*/
-        /*    margin-top: 20px;*/
-        /*    display: inline-block;*/
-        /*}*/
-
         .button-group {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 15px;
             margin-top: 30px;
         }
 
@@ -102,8 +96,8 @@
             background-color: #28a745;
             color: white;
             border: none;
-            padding: 12px 20px;
-            font-size: 18px;
+            padding: 10px 20px;
+            font-size: 16px;
             border-radius: 8px;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
@@ -129,6 +123,73 @@
 
         .edit-button input:hover {
             background-color: #e0a800;
+        }
+
+        .comment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .comment-form textarea {
+            width: calc(100% - 20px);
+            height: 60px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            border-radius: 5px;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .comment-form input[type="submit"] {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .comment-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .comment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .delete-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: #5a6268;
         }
     </style>
 </head>
@@ -162,7 +223,8 @@
 
     <div class="button-group">
         <div th:if="${admin}">
-            <form th:method="GET" th:action="@{/product/edit/{id}(id=${productWithPhotos.getProduct().getId()})}" class="edit-button">
+            <form th:method="GET" th:action="@{/product/edit/{id}(id=${productWithPhotos.getProduct().getId()})}"
+                  class="edit-button">
                 <input type="submit" value="Редагувати продукт">
             </form>
         </div>
@@ -180,50 +242,46 @@
             </form>
         </div>
     </div>
-</div>
 
-<!-- Page Title -->
-<!--<p class="page-title">PRODUCT PAGE</p>-->
-<!-- Back Button -->
-<!--<form th:method="GET" th:action="@{/product}" class="back-button">-->
-<!--    <input type="submit" value="Back">-->
-<!--</form>-->
-<!-- Main Product Image -->
-<!--<img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productWithPhotos.getProductPhoto().getUrl()})}"-->
-<!--     class="product-main-img" alt="Main Product Image">-->
-<!-- Additional Product Photos -->
-<!--<div class="photo-container-wrapper">-->
-<!--    <div th:each="productPhoto : ${productWithPhotos.getProductPhotoList()}" class="photo-container">-->
-<!--        &lt;!&ndash;        <p th:text="${productPhoto.getUrl()}"></p>&ndash;&gt;-->
-<!--        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productPhoto.getUrl()})}"-->
-<!--             alt="Product Photo">-->
+    <div class="comment-form">
+        <form th:method="POST" th:action="@{/comment}" style="flex: 1;">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <textarea name="comment" placeholder="Напишіть коментар"></textarea>
+            <br>
+            <input type="submit" value="Додати коментар">
+        </form>
+    </div>
+
+
+<!--    <div class="comment-section">-->
+        <h2>Ваш коментар</h2>
+        <div th:if="${commentUser != null}" class="comment">
+            <p th:text="${'Дата:' + commentUser.getCreatedAt()}"></p>
+            <br>
+            <p th:text="${commentUser.getComment()}"></p>
+            <form th:method="DELETE" th:action="@{/comment}">
+                <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+                <input type="submit" value="Видалити" class="delete-button">
+            </form>
+        </div>
+        <div th:unless="${commentUser}">
+            <p>Ви ще не залишили коментар до цього продукту. Потрібно це виправити...</p>
+        </div>
 <!--    </div>-->
-<!--</div>-->
-<!-- Product Details -->
-<!--<div class="product-details">-->
-<!--    <p th:text="${'TITLE= ' + productWithPhotos.getProduct().getTitle()}"></p>-->
-<!--    <p th:text="${'PRICE= ' + productWithPhotos.getProduct().getPrice()}"></p>-->
-<!--    <p th:text="${'ARTICLE= ' + productWithPhotos.getProduct().getArticle()}"></p>-->
-<!--    <p th:text="${'COUNT LEFT= ' + productWithPhotos.getProduct().getCountLeft()}"></p>-->
-<!--    <p th:text="${'DESCRIPTION= ' + productWithPhotos.getProduct().getDescription()}"></p>-->
-<!--</div>-->
-<!-- Edit Button -->
-<!--<form th:method="GET" th:action="@{/product/edit/{id}(id=${productWithPhotos.getProduct().getId()})}"-->
-<!--      class="edit-button">-->
-<!--    <input type="submit" value="Edit">-->
-<!--</form>-->
-<!---->
-<!--<div th:if="${isPresentInCart}">-->
-<!--    <form th:method="GET" th:action="@{/cart}">-->
-<!--        <input type="submit" value="В корзині🛒">-->
-<!--    </form>-->
-<!--</div>-->
-<!--<div th:unless="${isPresentInCart}">-->
-<!--    <form th:method="POST" th:action="@{/cart}">-->
-<!--        <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">-->
-<!--        <input type="submit" value="Додати в корзину🛒">-->
-<!--    </form>-->
-<!--</div>-->
+
+    <h2>Інші коментарі</h2>
+
+    <div th:each="comment : ${comments}" class="comment">
+        <p th:text="${'Користувач: ' + comment.getPersonId() + ', Дата:' + comment.getCreatedAt()}"></p>
+        <br>
+        <p th:text="${comment.getComment()}"></p>
+
+        <form th:if="${admin}" th:method="DELETE" th:action="@{/comment}">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <input type="submit" value="Видалити" class="delete-button">
+        </form>
+    </div>
+</div>
 
 </body>
 </html>

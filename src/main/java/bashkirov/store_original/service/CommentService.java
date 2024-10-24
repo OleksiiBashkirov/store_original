@@ -3,8 +3,8 @@ package bashkirov.store_original.service;
 import bashkirov.store_original.model.Comment;
 import bashkirov.store_original.model.Person;
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -17,28 +17,27 @@ public class CommentService {
     private final JdbcTemplate jdbcTemplate;
     private final PersonDetailsService personDetailsService;
 
-    public Optional<Comment> getOptionalComment(int productId) {
+    public List<Comment> getAllProductComments(int productId) {
+//        Person person = personDetailsService.getCurrentUser();
+        return jdbcTemplate.query(
+                "select * from comment where product_id = ?" +
+//                        " AND person_id != ?" +
+                        " order by created_at DESC",
+                new Object[]{productId
+//                        , person.getId()
+                },
+                getCommentRowMapper()
+//                new BeanPropertyRowMapper<>(Comment.class)
+        );
+    }
+
+    public Optional<Comment> getOptionalUserComment(int productId) {
         Person person = personDetailsService.getCurrentUser();
         return jdbcTemplate.query(
                 "select * from comment where person_id = ? AND product_id = ?",
                 new Object[]{person.getId(), productId},
-                (rs, rowNum) -> {
-                    Comment comment = new Comment();
-                    comment.setPersonId(rs.getInt("person_id"));
-                    comment.setProductId(rs.getInt("product_id"));
-                    comment.setComment(rs.getString("comment"));
-                    return comment;
-                }
+                getCommentRowMapper()
         ).stream().findAny();
-    }
-
-    public List<Comment> getAllProductComments(int productId) {
-        Person person = personDetailsService.getCurrentUser();
-        return jdbcTemplate.query(
-                "select * from comment where product_id = ? AND person_id != ? order by created_at DESC",
-                new Object[]{productId, person.getId()},
-                new BeanPropertyRowMapper<>(Comment.class)
-        );
     }
 
     public void save(int productId, String comment) {
@@ -61,4 +60,15 @@ public class CommentService {
         );
     }
 
+
+    private static RowMapper<Comment> getCommentRowMapper() {
+        return (rs, rowNum) -> {
+            Comment comment = new Comment();
+            comment.setPersonId(rs.getInt("person_id"));
+            comment.setProductId(rs.getInt("product_id"));
+            comment.setComment(rs.getString("comment"));
+            comment.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            return comment;
+        };
+    }
 }

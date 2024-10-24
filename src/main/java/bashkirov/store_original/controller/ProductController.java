@@ -79,18 +79,17 @@ public class ProductController {
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
-        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
-            model.addAttribute("admin", true);
-        }
+        boolean isAdmin = personDetails.person().getRole().equals(Role.ROLE_ADMIN);
+        model.addAttribute("admin", isAdmin);
 
         model.addAttribute("comments", commentService.getAllProductComments(id));
+        model.addAttribute("commentUser", commentService.getOptionalUserComment(id).orElse(null));
 
-        Optional<Comment> optionalComment = commentService.getOptionalComment(id);
-        if (optionalComment.isPresent()) {
-            model.addAttribute("commentUser", optionalComment.get());
-        } else {
-            model.addAttribute("commentUser", false);
-        }
+//        if (optionalComment.isPresent()) {
+//            model.addAttribute("commentUser", optionalComment.get());
+//        } else {
+//            model.addAttribute("commentUser", false);
+//        }
 
         model.addAttribute("isPresentInCart", cartItemService.isProductPresentInCart(id));
         model.addAttribute("productWithPhotos", productService.getProductWithPhotos(id));
