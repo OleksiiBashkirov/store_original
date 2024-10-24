@@ -28,7 +28,8 @@
         }
 
         .logout-btn input,
-        .admin-btn input {
+        .admin-btn input,
+        .add-btn input {
             padding: 10px 15px;
             font-size: 16px;
             border: none;
@@ -52,6 +53,15 @@
         }
 
         .admin-btn input:hover {
+            background-color: #e0a800;
+        }
+
+        .add-btn input {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .add-btn input:hover {
             background-color: #e0a800;
         }
 
@@ -119,6 +129,12 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .product:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.02);
         }
 
         .product img {
@@ -201,10 +217,13 @@
     <div class="button-group">
         <!-- logout button -->
         <form th:method="GET" th:action="@{/auth/logout}" class="logout-btn">
-            <input type="submit" value="Log out">
+            <input type="submit" value="Вийти">
         </form>
         <form th:if="${admin}" th:method="GET" th:action="@{/admin}" class="admin-btn">
-            <input type="submit" value="Admin">
+            <input type="submit" value="Адмін">
+        </form>
+        <form th:if="${admin}" th:method="GET" th:action="@{/product/new}" class="add-btn">
+            <input type="submit" value="Додати продукт">
         </form>
     </div>
 

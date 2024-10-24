@@ -1,10 +1,13 @@
 package bashkirov.store_original.controller;
 
+import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Category;
+import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.CategoryService;
 import bashkirov.store_original.validation.CategoryValidator;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -22,16 +25,25 @@ public class CategoryController {
 
     @GetMapping
     public String getAll(
-            Model model
+            Model model,
+            @AuthenticationPrincipal PersonDetails personDetails
     ) {
+        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
+            model.addAttribute("admin", true);
+        }
         model.addAttribute("categoriesAll", categoryService.getAll());
         return "category/categories-page";
     }
 
     @GetMapping("/new")
     public String categoryPage(
-            @ModelAttribute("categoryNew") Category categoryNew
-    ) {
+            @ModelAttribute("categoryNew") Category categoryNew,
+            @AuthenticationPrincipal PersonDetails personDetails,
+            Model model) {
+        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
+            model.addAttribute("admin", true);
+        }
+
         return "category/category-new-page";
     }
 

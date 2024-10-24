@@ -132,6 +132,4 @@ public class OrderController {
         orderService.updateOrderStatus(orderId, orderStatus);
         return "redirect:/order/admin/" + orderId;
     }
-
-
 }

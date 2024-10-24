@@ -17,7 +17,7 @@ public class Product {
     private int id;
 
     @NotBlank(message = "Field cannot be empty")
-    @Size(min = 2, max = 64, message = "Size should be at least 2 and not longer 64 characters")
+    @Size(min = 2, max = 128, message = "Size should be at least 2 and not longer 128 characters")
     private String title;
 
     @Min(0)

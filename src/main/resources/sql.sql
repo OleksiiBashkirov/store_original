@@ -90,7 +90,7 @@ from product
 where category_id = 1;
 delete
 from product
-where id = 30;
+where id < 24;
 select *
 from product;
 

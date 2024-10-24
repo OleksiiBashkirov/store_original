@@ -43,7 +43,7 @@ public class ProductController {
             @RequestParam(defaultValue = "10") int size,
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
-            ) {
+    ) {
         if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
             model.addAttribute("admin", true);
         }
@@ -64,8 +64,13 @@ public class ProductController {
     @GetMapping("/{id}")
     public String getById(
             @PathVariable("id") int id,
-            Model model
+            Model model,
+            @AuthenticationPrincipal PersonDetails personDetails
     ) {
+        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
+            model.addAttribute("admin", true);
+        }
+
         model.addAttribute("isPresentInCart", cartItemService.isProductPresentInCart(id));
         model.addAttribute("productWithPhotos", productService.getProductWithPhotos(id));
         return "product/product-page";
