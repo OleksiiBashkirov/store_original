@@ -7,12 +7,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @Service
@@ -80,11 +83,44 @@ public class PersonDetailsService implements UserDetailsService {
             person.setLastname(rs.getString("lastname"));
             person.setAddress(rs.getString("address"));
             person.setPhone(rs.getString("phone"));
+            person.setEmail(rs.getString("email"));
             person.setUsername(rs.getString("username"));
             person.setPassword(rs.getString("password"));
             person.setRole(Role.valueOf(rs.getString("role")));
             person.setEnable(rs.getBoolean("is_enable"));
             return person;
         };
+    }
+
+    public Person getPersonByOrderId(int orderId) {
+        return jdbcTemplate.query(
+                "select * from person p join orders o on p.id = o.person_id where o.id = ?",
+                new Object[]{orderId},
+                getPersonRowMapper()
+        ).stream().findAny().orElseThrow(
+                () -> new NoSuchElementException("Failed to find person by order id=" + orderId));
+    }
+
+    public void addAdmin(int personId) {
+        jdbcTemplate.update(
+                "update person set role = 'ROLE_ADMIN' where id = ?",
+                personId
+        );
+    }
+
+    public void removeAdmin(int personId) {
+        jdbcTemplate.update(
+                "update person set role = 'ROLE_USER' where id = ?",
+                personId
+        );
+    }
+
+    public Person getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
+            PersonDetails userDetails = (PersonDetails) authentication.getPrincipal();
+            return userDetails.person();
+        }
+        return null;
     }
 }

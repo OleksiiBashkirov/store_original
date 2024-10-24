@@ -149,6 +149,17 @@
         </tr>
         </tbody>
     </table>
+    <form th:method="GET" th:action="@{/email}">
+        <input type="hidden" name="orderId" th:value="${orderId}">
+        <label for="textId">Повідомлення:</label>
+        <input type="text" name="text" id="textId" placeholder="Введіть повідомлення для користувача">
+        <input type="submit" value="Відправити повідомлення">
+    </form>
+
+    <div th:if="${isSent}">
+        <p style="color: green">Повідомлення успішно відправлено</p>
+    </div>
+
 </div>
 
 </body>

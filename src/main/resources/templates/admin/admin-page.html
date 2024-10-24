@@ -28,15 +28,17 @@
         }
 
         .btn-container {
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            /*justify-content: space-between;*/
+            gap: 15px;
+            /*gap: 10px;*/
             margin-bottom: 30px;
         }
 
         .btn {
-            flex: 1;
-            padding: 15px;
+            width: 100%;
+            padding: 12px;
             font-size: 16px;
             font-weight: 600;
             color: white;
@@ -46,10 +48,22 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
             text-align: center;
+
+            /*flex: 1;*/
+            /*padding: 15px;*/
+            /*font-size: 16px;*/
+            /*font-weight: 600;*/
+            /*color: white;*/
+            /*background-color: #007bff;*/
+            /*border: none;*/
+            /*border-radius: 8px;*/
+            /*cursor: pointer;*/
+            /*transition: background-color 0.3s ease, transform 0.2s ease;*/
+            /*text-align: center;*/
         }
 
         .btn:hover {
-            background-color: #007bff;
+            background-color: #0056b3;
             transform: scale(1.05);
         }
 
@@ -61,22 +75,86 @@
             margin-top: 20px;
         }
 
-        .list a {
-            display: block;
-            padding: 10px;
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
             margin-bottom: 10px;
             background-color: #e6f2ff;
             border-radius: 8px;
-            text-decoration: none;
-            color: #007bff;
-            font-weight: 600;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        .list a:hover {
+        .list-item:hover {
             background-color: #cce7ff;
             transform: scale(1.02);
         }
+
+        .list-item a {
+            text-decoration: none;
+            color: #007bff;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .list-item form {
+            margin: 0;
+        }
+
+        .list-item input[type="submit"] {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .list-item input[type="submit"]:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        /*.list a {*/
+        /*    display: block;*/
+        /*    padding: 10px 15px;*/
+        /*    margin-bottom: 10px;*/
+        /*    background-color: #e6f2ff;*/
+        /*    border-radius: 8px;*/
+        /*    text-decoration: none;*/
+        /*    color: #007bff;*/
+        /*    font-weight: 600;*/
+        /*    transition: background-color 0.3s ease, transform 0.2s ease;*/
+        /*}*/
+
+        /*.list a:hover {*/
+        /*    background-color: #cce7ff;*/
+        /*    transform: scale(1.02);*/
+        /*}*/
+
+        /*.list form {*/
+        /*    margin-top: 10px;*/
+        /*}*/
+
+        /*.list input[type="submit"] {*/
+        /*    width: 100%;*/
+        /*    padding: 12px;*/
+        /*    background-color: #28a745;*/
+        /*    border: none;*/
+        /*    border-radius: 8px;*/
+        /*    color: white;*/
+        /*    font-size: 16px;*/
+        /*    cursor: pointer;*/
+        /*    transition: background-color 0.3s ease, transform 0.2s ease;*/
+        /*}*/
+
+        /*.list input[type="submit"]:hover {*/
+        /*    background-color: #218838;*/
+        /*    transform: scale(1.05);*/
+        /*}*/
     </style>
 </head>
 <body>
@@ -101,25 +179,26 @@
 
     <h2>Список адміністраторів</h2>
     <div class="list" th:each="admin : ${adminsList}">
-        <a th:href="@{/person/{id}(id=${person.getId()})}"
-           th:text="${admin.getId() + '. Name: ' + admin.getName() + ', lastname= ' + admin.getLastname() + ', phone= ' + admin.getPhone()}"
-        ></a>
+        <div class="list-item">
+            <a th:href="@{/person/{id}(id=${person.getId()})}"
+               th:text="${admin.getId() + '. Name: ' + admin.getName() + ', lastname= ' + admin.getLastname() + ', phone= ' + admin.getPhone()}"
+            ></a>
+            <form th:method="PATCH" th:action="@{/admin/remove}">
+                <input type="hidden" name="personId" th:value="${admin.getId()}">
+                <input type="submit" value="Скасувати роль">
+            </form>
+        </div>
     </div>
 
     <h2>Список менеджерів</h2>
     <div class="list" th:each="manager : ${managersList}">
-        <a th:href="@{person/{id}(id=${person.getId()})}"
-           th:text="${manager.getId() + '. Name: ' + manager.getName() + ', lastname= ' + manager.getLastname() + ', phone= ' + manager.getPhone()}"
-        ></a>
+        <div class="list-item">
+            <a th:href="@{person/{id}(id=${person.getId()})}"
+               th:text="${manager.getId() + '. Name: ' + manager.getName() + ', lastname= ' + manager.getLastname() + ', phone= ' + manager.getPhone()}"
+            ></a>
+        </div>
     </div>
 </div>
 
-<!--
-только кнопки:
-1. увидеть все заказы
-2. страница с ролями всех всех: админы, менеджеры, юзеры
-3. все заказы конкретного персона -> через клікабельний список всіх юзерів,
-
--->
 </body>
 </html>

@@ -43,7 +43,7 @@
         }
 
         .sort-links a:hover {
-            color: #007bff;
+            color: #0056b3;
         }
 
         table {
@@ -81,7 +81,7 @@
 
         .btn-container {
             text-align: left;
-            margin: 20px 0;
+            margin-bottom: 20px;
         }
 
         .btn-return {
@@ -94,17 +94,51 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            text-decoration: none;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .btn-return:hover {
-            background-color: #007bff;
+            background-color: #0056b3;
             transform: scale(1.05);
         }
 
         .btn-return:active {
             transform: scale(0.98);
         }
+
+        .filter-form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+            align-items: center;
+        }
+
+        select {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .filter-button {
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .filter-button:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
 
     </style>
 </head>
@@ -125,6 +159,22 @@
         <a th:href="@{/order/all-orders(sortBy='created_at', order='desc')}">дата (↓)</a>
     </div>
 
+    <div class="filter-form">
+        <form th:method="GET" th:action="@{/order/all-orders}">
+            <label for="statusId">Фільтр за статусом:</label>
+            <select name="status" id="statusId">
+                <option value="" th:selected="${selectedStatus == null}">Всі</option>
+                <option th:each="status : ${statusList}"
+                        th:value="${status}"
+                        th:text="${status.name()}"
+                        th:selected="${status == selectedStatus}"
+                >
+                </option>
+            </select>
+            <button type="submit" class="filter-button">Застосувати</button>
+        </form>
+    </div>
+
     <table>
         <thead>
         <tr>
@@ -138,7 +188,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="order : ${ordersAll}" th:onclick="|window.location='/order/admin/' + ${order.getId()}|">
+        <tr th:each="order : ${ordersList}" th:onclick="|window.location='/order/admin/' + ${order.getId()}|">
             <td th:text="${order.getId()}"></td>
             <td th:text="${order.getCreatedAt()}"></td>
             <td th:text="${order.getOrdersStatus().toString()}"></td>

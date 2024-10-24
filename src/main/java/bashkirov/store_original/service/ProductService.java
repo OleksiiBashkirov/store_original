@@ -152,15 +152,6 @@ public class ProductService {
         );
     }
 
-    //    public List<ProductPhotoDto> getProductPhotoDtoPaginated(int page, int size) {
-//        List<Product> productList = jdbcTemplate.query(
-//                "select * from product order by id LIMIT ? OFFSET ?",
-//                new Object[]{size, (page * size)},
-//                new BeanPropertyRowMapper<>(Product.class)
-//        );
-//        return transformProductToProductPhotoDto(productList);
-//    }
-
     public List<ProductPhotoDto> search(String key, Integer categoryId, int page, int size) {
         if (key == null || key.isBlank()) {
             if (categoryId != null) {
@@ -204,5 +195,14 @@ public class ProductService {
                 Integer.class
         );
         return count == null ? 0 : count;
+    }
+
+    public int countProductsByCategory(Integer categoryId) {
+        Integer countByCategory = jdbcTemplate.queryForObject(
+                "select COUNT(*) from product where category_id = ?",
+                new Object[]{categoryId},
+                Integer.class
+        );
+        return countByCategory == null ? 0 : countByCategory;
     }
 }

@@ -6,15 +6,11 @@ import bashkirov.store_original.model.CartItem;
 import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.model.Person;
 import bashkirov.store_original.model.Product;
-import bashkirov.store_original.security.PersonDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -28,6 +24,7 @@ public class OrderService {
     private final JdbcTemplate jdbcTemplate;
     private final CartItemService cartItemService;
     private final ProductService productService;
+    private final PersonDetailsService personDetailsService;
 
     public Orders getById(int orderId) {
         return jdbcTemplate.query(
@@ -46,19 +43,18 @@ public class OrderService {
 
     public List<Orders> getAllByStatus(OrdersStatus status) {
         return jdbcTemplate.query(
-                "select * from orders where status = ?",
+                "select * from orders where status = ? order by id DESC",
                 new Object[]{status.toString()},
                 getOrdersRowMapper()
         );
     }
 
     public List<OrderCartItemsDto> getAllByUser() {
-        Person person = getCurrentUser();
+        Person person = personDetailsService.getCurrentUser();
         List<Orders> orderList = jdbcTemplate.query(
                 "select * from orders where person_id = ? order by created_at DESC",
                 new Object[]{person.getId()},
                 getOrdersRowMapper()
-//                new BeanPropertyRowMapper<>(Orders.class)
         );
 
         List<OrderCartItemsDto> orderCartItemsDtoList = new ArrayList<>();
@@ -97,24 +93,8 @@ public class OrderService {
         );
     }
 
-    private static RowMapper<Orders> getOrdersRowMapper() {
-        return (rs, rowNum) -> {
-            Orders order = new Orders();
-            order.setId(rs.getInt("id"));
-            order.setPersonId(rs.getInt("person_id"));
-            order.setOrdersStatus(OrdersStatus.valueOf(rs.getString("status")));
-            order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-            order.setDeliveryAddress(rs.getString("delivery_address"));
-            order.setComment(rs.getString("comment"));
-            order.setName(rs.getString("name"));
-            order.setLastname(rs.getString("lastname"));
-            order.setPhone(rs.getString("phone"));
-            return order;
-        };
-    }
-
     public void createOrder(Orders order) {
-        Person person = getCurrentUser();
+        Person person = personDetailsService.getCurrentUser();
         jdbcTemplate.update(
                 "insert into orders(person_id, status, created_at, delivery_address, comment, name, lastname, phone) values (?,?,?,?,?,?,?,?)",
                 person.getId(),
@@ -173,6 +153,7 @@ public class OrderService {
 
     @Scheduled(fixedRate = 60000)
     public void cancelUnpaidOrders() {
+        System.out.println("TEST");
         LocalDateTime cancelledDateTime = LocalDateTime.now().minusMinutes(15);
 
         List<Orders> ordersList = jdbcTemplate.query(
@@ -209,12 +190,19 @@ public class OrderService {
         }
     }
 
-    private Person getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            PersonDetails userDetails = (PersonDetails) authentication.getPrincipal();
-            return userDetails.person();
-        }
-        return null;
+    private static RowMapper<Orders> getOrdersRowMapper() {
+        return (rs, rowNum) -> {
+            Orders order = new Orders();
+            order.setId(rs.getInt("id"));
+            order.setPersonId(rs.getInt("person_id"));
+            order.setOrdersStatus(OrdersStatus.valueOf(rs.getString("status")));
+            order.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+            order.setDeliveryAddress(rs.getString("delivery_address"));
+            order.setComment(rs.getString("comment"));
+            order.setName(rs.getString("name"));
+            order.setLastname(rs.getString("lastname"));
+            order.setPhone(rs.getString("phone"));
+            return order;
+        };
     }
 }

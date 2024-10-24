@@ -132,6 +132,7 @@
             <th>Username</th>
             <th>Активний</th>
             <th>Замовлення</th>
+            <th>Дія</th>
         </tr>
         </thead>
         <tbody>
@@ -145,8 +146,15 @@
             <td th:text="${user.getUsername()}"></td>
             <td th:text="${user.isEnable() ? 'Ні' : 'Так'}"></td>
             <td>
-                <form th:method="GET" th:action="@{/order/{userId}(userId=${user.getId()})} ">
-                    <button type="submit" class="view-orders-btn"> Всі замолення</button>
+                <form th:method="GET" th:action="@{/order}">
+                    <input type="hidden" name="userId" th:value="${user.getId()}">
+                    <button type="submit" class="view-orders-btn">Всі замовлення</button>
+                </form>
+            </td>
+            <td>
+                <form th:method="PATCH" th:action="@{/admin/add}">
+                    <input type="hidden" name="personId" th:value="${user.getId()}">
+                    <button type="submit" class="view-orders-btn">Призначити адміном</button>
                 </form>
             </td>
         </tr>

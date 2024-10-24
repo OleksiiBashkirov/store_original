@@ -234,7 +234,9 @@
             <img src="https://w7.pngwing.com/pngs/456/948/png-transparent-computer-icons-desktop-web-search-engine-wordpress-com-search-icon-search-logo-website-circle-wordpresscom-thumbnail.png"
                  alt="Search">
         </button>
+
         <select name="categoryId" id="selectCategoryId">
+            <option value="" th:selected="${categoryId == null}">Всі</option>
             <option th:each="category : ${categories}"
                     th:value="${category.getId()}"
                     th:text="${category.getName()}"
@@ -283,13 +285,17 @@
 
 <div class="pagination">
     <a th:if="${currentPage > 0}"
-       th:href="@{'/product?page=' + ${currentPage - 1} + '&size=' + 10}"
+       th:href="@{'/product?page=' + ${currentPage - 1} + '&size=' + 10
+       + ${categoryId != null ? '&categoryId=' + categoryId : ''}
+       + ${key != null ? '&key=' + key : ''}}"
        class="pagination-link">⏪ Попередня </a>
 
     <span class="current-page"><span th:text="${currentPage + 1}"></span></span>
 
     <a th:if="${currentPage< totalPages - 1}"
-       th:href="@{'/product?page=' + ${currentPage + 1} + '&size=' + 10}"
+       th:href="@{'/product?page=' + ${currentPage + 1} + '&size=' + 10
+       + ${categoryId != null ? '&categoryId=' + categoryId : ''}
+       + ${key != null ? '&key=' + key : ''}}"
        class="pagination-link"> Наступна ⏩</a>
 </div>
 

@@ -67,10 +67,11 @@ drop table cart_item;
 
 create table comment
 (
-    person_id  int references person (id) on delete cascade  not null,
-    product_id int references product (id) on delete cascade not null,
+    person_id  int references person (id) on delete cascade          not null,
+    product_id int references product (id) on delete cascade         not null,
     primary key (person_id, product_id),
-    comment    varchar                                       not null
+    comment    varchar                                               not null,
+    created_at timestamp without time zone default current_timestamp not null
 );
 drop table comment;
 
@@ -93,6 +94,10 @@ from product
 where id < 24;
 select *
 from product;
+delete
+from category
+where id >= 2
+  AND id <= 7;
 
 
 

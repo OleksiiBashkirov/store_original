@@ -1,10 +1,12 @@
 package bashkirov.store_original.controller;
 
 import bashkirov.store_original.enumeration.Role;
+import bashkirov.store_original.model.Comment;
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.CartItemService;
 import bashkirov.store_original.service.CategoryService;
+import bashkirov.store_original.service.CommentService;
 import bashkirov.store_original.service.PhotoService;
 import bashkirov.store_original.service.ProductService;
 import bashkirov.store_original.validation.ProductValidator;
@@ -25,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Optional;
+
 @Controller
 @RequestMapping("/product")
 @RequiredArgsConstructor
@@ -34,6 +38,7 @@ public class ProductController {
     private final CategoryService categoryService;
     private final PhotoService photoService;
     private final CartItemService cartItemService;
+    private final CommentService commentService;
 
     @GetMapping()
     public String search(
@@ -48,16 +53,23 @@ public class ProductController {
             model.addAttribute("admin", true);
         }
 
-        int totalProducts = productService.countProducts();
+        int totalProducts = (categoryId == null) ?
+                productService.countProducts() :
+                productService.countProductsByCategory(categoryId);
+
         int totalPages = (int) Math.ceil((double) totalProducts / size);
+
         model.addAttribute("totalPages", totalPages);
         model.addAttribute("currentPage", page);
-
         model.addAttribute("categories", categoryService.getAll());
         model.addAttribute("key", key);
         model.addAttribute("categoryId", categoryId);
-        model.addAttribute("searchList", productService.search(key, categoryId, page, size));
 
+        if (categoryId == null) {
+            model.addAttribute("searchList", productService.search(key, null, page, size));
+        } else {
+            model.addAttribute("searchList", productService.getAllByCategoryId(categoryId, page, size));
+        }
         return "product/products-page";
     }
 
@@ -69,6 +81,15 @@ public class ProductController {
     ) {
         if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
             model.addAttribute("admin", true);
+        }
+
+        model.addAttribute("comments", commentService.getAllProductComments(id));
+
+        Optional<Comment> optionalComment = commentService.getOptionalComment(id);
+        if (optionalComment.isPresent()) {
+            model.addAttribute("commentUser", optionalComment.get());
+        } else {
+            model.addAttribute("commentUser", false);
         }
 
         model.addAttribute("isPresentInCart", cartItemService.isProductPresentInCart(id));

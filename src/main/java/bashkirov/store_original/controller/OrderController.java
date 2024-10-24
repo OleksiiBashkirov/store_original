@@ -68,6 +68,16 @@ public class OrderController {
         return "order/user-orders";
     }
 
+//    @GetMapping("/user-orders")
+//    public String getUserOrdersByUserId(
+//            @RequestParam("userId") int userId,
+//            Model model
+//    ) {
+//        model.addAttribute("ordersHistoryByUser", orderService.getAllByUserId(userId));
+//
+//        return "order/user-orders";
+//    }
+
     @GetMapping("/{orderId}")
     public String getById(
             @PathVariable("orderId") int orderId,
@@ -85,14 +95,19 @@ public class OrderController {
     public String showAllOrders(
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "desc") String order,
+            @RequestParam(required = false, name = "status") OrdersStatus status,
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
         if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
             model.addAttribute("admin", true);
         }
+
         List<Orders> ordersList;
-        if (sortBy.equals("id")) {
+
+        if (status != null) {
+            ordersList = orderService.getAllByStatus(status);
+        } else if (sortBy.equals("id")) {
             ordersList = order.equals("asc") ? orderService.getAllSortedByOrderIdAsc()
                     : orderService.getAll();
         } else if (sortBy.equals("created_at")) {
@@ -102,25 +117,29 @@ public class OrderController {
             ordersList = orderService.getAll();
         }
 
-        model.addAttribute("ordersAll", ordersList);
+        model.addAttribute("ordersList", ordersList);
+        model.addAttribute("statusList", OrdersStatus.values());
+        model.addAttribute("selectedStatus", status);
         return "order/all-orders-page";
     }
 
 //***********************************************************************************
     // + треба для адміна зробити теж сторінку замовлення
-    // але адмін на ній зможе сам вибирати любий статус який йому до вподоби
+    // + але адмін на ній зможе сам вибирати любий статус який йому до вподоби
 //***********************************************************************************
     // а також буде кнопка видалити замовлення,
-    // також поле через яке ми зможем відправити лист на пошту даній людині
+    // + також поле через яке ми зможем відправити лист на пошту даній людині
 //***********************************************************************************
 
     @GetMapping("/admin/{orderId}")
     public String showAdminOrderPage(
             @PathVariable("orderId") int orderId,
+            @RequestParam(required = false, name = "isSent") Boolean isSent,
             Model model
     ) {
         model.addAttribute("orderByIdWithCartItemsList", orderService.getWithCartItemsDtoById(orderId));
         model.addAttribute("statusList", OrdersStatus.values());
+        model.addAttribute("isSent", isSent != null);
         return "order/order-admin-page";
     }
 
