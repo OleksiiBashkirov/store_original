@@ -32,7 +32,7 @@
             margin: 20px 0;
         }
 
-        .btn-return {
+        .btn-return, .send-email-btn {
             display: inline-block;
             padding: 10px 20px;
             font-size: 16px;
@@ -45,12 +45,12 @@
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
-        .btn-return:hover {
+        .btn-return:hover, .send-email-btn {
             background-color: #0056b3;
             transform: scale(1.05);
         }
 
-        .btn-return:active {
+        .btn-return:active, .send-email-btn:active {
             transform: scale(0.98);
         }
 
@@ -107,6 +107,11 @@
         .view-orders-btn:active {
             transform: scale(0.98);
         }
+
+        .email-section {
+            margin-top: 30px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -160,6 +165,12 @@
         </tr>
         </tbody>
     </table>
+
+    <div class="email-section">
+        <form th:method="GET" th:action="@{/email/advertisement}">
+            <button type="submit" class="send-email-btn">Зробити розсилку</button>
+        </form>
+    </div>
 </div>
 
 </body>

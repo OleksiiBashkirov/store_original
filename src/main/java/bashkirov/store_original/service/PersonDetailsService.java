@@ -123,4 +123,15 @@ public class PersonDetailsService implements UserDetailsService {
         }
         return null;
     }
+
+    public void update(Person person) {
+        jdbcTemplate.update(
+                "update person set name = ?, lastname = ?, address = ?, phone = ? where id = ?",
+                person.getName(),
+                person.getLastname(),
+                person.getAddress(),
+                person.getPhone(),
+                getCurrentUser().getId()
+        );
+    }
 }

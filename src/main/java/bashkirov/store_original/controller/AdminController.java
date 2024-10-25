@@ -58,9 +58,4 @@ public class AdminController {
         personDetailsService.removeAdmin(personId);
         return "redirect:/admin/users";
     }
-
-
-
-
-
 }

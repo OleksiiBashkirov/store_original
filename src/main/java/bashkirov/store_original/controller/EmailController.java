@@ -6,10 +6,14 @@ import bashkirov.store_original.service.EmailService;
 import bashkirov.store_original.service.PersonDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.util.List;
 
 @Controller
 @RequestMapping("/email")
@@ -30,5 +34,26 @@ public class EmailController {
         emailService.sendEmail(new EmailDto(email, "Магазин BASHKIROV", text));
         redirectAttributes.addAttribute("isSent", true);
         return "redirect:/order/admin/" + orderId;
+    }
+
+    @GetMapping("/advertisement")
+    public String advertisementNewPage(
+    ) {
+        return "advertisement/advertisement-page";
+    }
+
+
+    @PostMapping("/advertisement")
+    public String sendAdvertisementToCustomer(
+            @RequestParam("advertisementSubject") String advertisementSubject,
+            @RequestParam("advertisementText") String advertisementText,
+            Model model
+    ) {
+        List<Person> persons = personDetailsService.getAllUsers();
+        for (Person person : persons) {
+            String email = person.getEmail();
+            emailService.sendEmail(new EmailDto(email, advertisementSubject, advertisementText));
+        }
+        return "advertisement/advertisement-page";
     }
 }

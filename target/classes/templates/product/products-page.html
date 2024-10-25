@@ -226,6 +226,9 @@
         <form th:if="${admin}" th:method="GET" th:action="@{/product/new}" class="add-btn">
             <input type="submit" value="Додати продукт">
         </form>
+        <form th:method="GET" th:action="@{/person/profile}" class="add-btn">
+            <input type="submit" value="Профіль">
+        </form>
     </div>
 
     <!-- Search Form -->
@@ -248,7 +251,7 @@
     </form>
 
     <div class="icons-container">
-<!--        wishlist-->
+        <!--        wishlist-->
         <a th:href="@{/wishlist}">
             <img src="https://w7.pngwing.com/pngs/978/882/png-transparent-wishlist-save-save-for-later-shopping-ecommerce-favorite-add-to-wishlist-ecommerce-online-shopping-icon-thumbnail.png"
                  alt="Wishlist">

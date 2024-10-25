@@ -164,6 +164,7 @@
         /*}*/
 
         .comment {
+            /*font-family: Arial, sans-serif;*/
             background-color: #f9f9f9;
             padding: 15px;
             border-radius: 8px;
@@ -177,6 +178,7 @@
         }
 
         .comment-form textarea {
+            font-family: Arial, sans-serif;
             width: calc(100% - 20px);
             height: 60px;
             padding: 10px;
@@ -288,31 +290,30 @@
         </div>
     </div>
 
-    <div class="comment-form">
+    <div th:unless="${commentUser}" class="comment-form">
         <form th:method="POST" th:action="@{/comment}" style="flex: 1;">
             <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
             <textarea name="comment" placeholder="Напишіть коментар"></textarea>
             <br>
             <input type="submit" value="Додати коментар">
         </form>
+
+        <p>Ви ще не залишили коментар до цього продукту. Потрібно це виправити...</p>
     </div>
 
 
-<!--    <div class="comment-section">-->
-        <h2>Ваш коментар</h2>
-        <div th:if="${commentUser != null}" class="comment">
-            <p th:text="${'Дата:' + commentUser.getCreatedAt()}"></p>
-            <br>
-            <p th:text="${commentUser.getComment()}"></p>
-            <form th:method="DELETE" th:action="@{/comment}">
-                <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
-                <input type="submit" value="Видалити" class="delete-button">
-            </form>
-        </div>
-        <div th:unless="${commentUser}">
-            <p>Ви ще не залишили коментар до цього продукту. Потрібно це виправити...</p>
-        </div>
-<!--    </div>-->
+    <!--    <div class="comment-section">-->
+    <h2>Ваш коментар</h2>
+    <div th:if="${commentUser}" class="comment">
+        <p th:text="${'Дата:' + commentUser.getCreatedAt()}"></p>
+        <br>
+        <p th:text="${commentUser.getComment()}"></p>
+        <form th:method="DELETE" th:action="@{/comment}">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <input type="submit" value="Видалити" class="delete-button">
+        </form>
+    </div>
+    <!--    </div>-->
 
     <h2>Інші коментарі</h2>
 

@@ -21,15 +21,16 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
-        h1 {
+        h1, h2 {
             text-align: center;
             color: #007bff;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .btn-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr);
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            /*grid-template-columns: repeat(2, 1fr);*/
             /*justify-content: space-between;*/
             gap: 15px;
             /*gap: 10px;*/
@@ -48,18 +49,6 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
             text-align: center;
-
-            /*flex: 1;*/
-            /*padding: 15px;*/
-            /*font-size: 16px;*/
-            /*font-weight: 600;*/
-            /*color: white;*/
-            /*background-color: #007bff;*/
-            /*border: none;*/
-            /*border-radius: 8px;*/
-            /*cursor: pointer;*/
-            /*transition: background-color 0.3s ease, transform 0.2s ease;*/
-            /*text-align: center;*/
         }
 
         .btn:hover {
@@ -96,6 +85,8 @@
             color: #007bff;
             font-weight: 600;
             margin-right: 10px;
+            flex-grow: 1;
+            word-break: break-word;
         }
 
         .list-item form {
@@ -118,43 +109,29 @@
             transform: scale(1.05);
         }
 
-        /*.list a {*/
-        /*    display: block;*/
-        /*    padding: 10px 15px;*/
-        /*    margin-bottom: 10px;*/
-        /*    background-color: #e6f2ff;*/
-        /*    border-radius: 8px;*/
-        /*    text-decoration: none;*/
-        /*    color: #007bff;*/
-        /*    font-weight: 600;*/
-        /*    transition: background-color 0.3s ease, transform 0.2s ease;*/
-        /*}*/
+        /* Адаптивний макет для мобільних пристроїв */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
 
-        /*.list a:hover {*/
-        /*    background-color: #cce7ff;*/
-        /*    transform: scale(1.02);*/
-        /*}*/
+            h1, h2 {
+                font-size: 24px;
+            }
 
-        /*.list form {*/
-        /*    margin-top: 10px;*/
-        /*}*/
+            .btn {
+                font-size: 14px;
+            }
 
-        /*.list input[type="submit"] {*/
-        /*    width: 100%;*/
-        /*    padding: 12px;*/
-        /*    background-color: #28a745;*/
-        /*    border: none;*/
-        /*    border-radius: 8px;*/
-        /*    color: white;*/
-        /*    font-size: 16px;*/
-        /*    cursor: pointer;*/
-        /*    transition: background-color 0.3s ease, transform 0.2s ease;*/
-        /*}*/
+            .list-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
 
-        /*.list input[type="submit"]:hover {*/
-        /*    background-color: #218838;*/
-        /*    transform: scale(1.05);*/
-        /*}*/
+            .list-item a {
+                margin-bottom: 10px;
+            }
+        }
     </style>
 </head>
 <body>

@@ -14,4 +14,5 @@ import lombok.NoArgsConstructor;
 public class ProductPhotoDto {
     private Product product;
     private ProductPhoto productPhoto;
+//    private boolean isLiked;
 }
