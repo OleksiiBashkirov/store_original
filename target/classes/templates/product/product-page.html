@@ -110,6 +110,12 @@
 
         .cart-button input {
             background-color: #28a745;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
         .cart-button input:hover {
@@ -124,6 +130,38 @@
         .edit-button input:hover {
             background-color: #e0a800;
         }
+
+        /* Стиль кнопки wishlist */
+        .wishlist-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wishlist-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .wishlist-btn:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+        }
+
+        /*.wishlist-btn::before {*/
+        /*    content: "❤️";*/
+        /*    font-size: 18px;*/
+        /*}*/
 
         .comment {
             background-color: #f9f9f9;
@@ -238,7 +276,14 @@
         <div th:unless="${isPresentInCart}">
             <form th:method="POST" th:action="@{/cart}" class="cart-button">
                 <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
-                <input type="submit" value="Додати в корзину🛒">
+                <input type="submit" value="🛒 Додати в корзину">
+            </form>
+        </div>
+
+        <div class="wishlist-button">
+            <form th:method="POST" th:action="@{/wishlist/add}">
+                <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+                <button type="submit" class="wishlist-btn">❤️ Додати до списку бажань</button>
             </form>
         </div>
     </div>

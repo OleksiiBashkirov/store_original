@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>wishlist-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .btn-container {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .btn-return {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .wishlist-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .wishlist-item:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.02);
+        }
+
+        .wishlist-item img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        .wishlist-details {
+            flex: 1;
+        }
+
+        .wishlist-details a {
+            text-decoration: none;
+            color: #007bff;
+            font-size: 18px;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+
+        .wishlist-details a:hover {
+            color: #0056b3;
+        }
+
+        .wishlist-details p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .delete-btn {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="btn-container">
+        <form th:method="GET" th:action="@{/product}">
+            <button type="submit" class="btn-return">Повернутись до продуктів</button>
+        </form>
+    </div>
+
+    <h1>Ваш список бажань</h1>
+
+    <div th:each="wishlistDto : ${wishlistDtoList}" class="wishlist-item">
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${wishlistDto.getProductPhotoDto().getProductPhoto().getUrl()})}"
+             alt="Wishlist Product Image">
+
+        <div class="wishlist-details">
+            <a th:href="@{/product/{id}(id=${wishlistDto.getProductPhotoDto().getProduct().getId()})}"
+               th:text="${'Назва:' + wishlistDto.getProductPhotoDto().getProduct().getTitle()}"></a>
+            <p th:text="${'Ціна: ' +wishlistDto.getProductPhotoDto().getProduct().getPrice()}"></p>
+            <p th:text="${'Залишилось на складі: ' + wishlistDto.getProductPhotoDto().getProduct().getCountLeft()}"></p>
+            <p th:text="${'Артикул: ' + wishlistDto.getProductPhotoDto().getProduct().getArticle()}"></p>
+        </div>
+
+        <form th:method="DELETE" th:action="@{/wishlist/remove}">
+            <input type="hidden" name="productId" th:value="${wishlistDto.getWishList().getProductId()}">
+            <button type="submit" class="delete-btn">Видалити</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

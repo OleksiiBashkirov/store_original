@@ -1,7 +1,6 @@
 package bashkirov.store_original.controller;
 
 import bashkirov.store_original.enumeration.Role;
-import bashkirov.store_original.model.Comment;
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.CartItemService;
@@ -26,8 +25,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.Optional;
 
 @Controller
 @RequestMapping("/product")
