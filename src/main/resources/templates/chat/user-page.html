@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>user-page</title>
+</head>
+<body>
+<p>user-page</p>
+
+<div>
+    <textarea id="messageBox" rows="10" cols="30" readonly></textarea>
+    <br>
+    <input type="text" id="message" placeholder="Введіть ваше повідомлення...">
+    <button onclick="sendMessage()">Відправити</button>
+</div>
+
+<script type="text/javascript">
+    let socket = new WebSocket("ws://localhost:8080/ws")
+    socket.onmessage = function (event) {
+        let messageBox = document.getElementById("messageBox");
+        messageBox.value += event.data + '\n';
+    };
+
+    function sendMessage() {
+        let message = document.getElementById("message").value;
+        socket.send(message);
+        document.getElementById("message").value = '';
+    }
+</script>
+
+</body>
+</html>

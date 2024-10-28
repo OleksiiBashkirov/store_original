@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>order-admin-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #e6f2ff;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-container {
+            text-align: left;
+            margin-top: 10px;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .btn-return:active {
+            transform: scale(0.98);
+        }
+
+        select {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="btn-container">
+        <a th:href="@{/order/all-orders}" class="btn-return">Повернутись</a>
+    </div>
+
+    <h1>Деталі замовлення</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>ID Замолення</th>
+            <th>ID Користувача</th>
+            <th>Статус</th>
+            <th>Дата створення</th>
+            <th>Адреса доставки</th>
+            <th>Коментар</th>
+            <th>Ім'я</th>
+            <th>Прізвище</th>
+            <th>Телефон</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getId()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getPersonId()}"></td>
+            <td>
+                <form th:method="PUT" th:action="@{/order/admin/{orderId}(orderId=${orderId})}">
+                    <select name="orderStatus" id="statusId">
+                        <option th:each="status : ${statusList}"
+                                th:value="${status}"
+                                th:text="${status.toString()}"
+                                th:selected="${status.toString().equals(orderByIdWithCartItemsList.getOrder().getOrdersStatus().toString())}">
+                        </option>
+                    </select>
+                    <input type="submit" value="Змінити">
+                </form>
+            </td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getCreatedAt()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getDeliveryAddress()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getComment()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getName()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getLastname()}"></td>
+            <td th:text="${orderByIdWithCartItemsList.getOrder().getPhone()}"></td>
+        </tr>
+        </tbody>
+    </table>
+    <form th:method="GET" th:action="@{/email}">
+        <input type="hidden" name="orderId" th:value="${orderId}">
+        <label for="textId">Повідомлення:</label>
+        <input type="text" name="text" id="textId" placeholder="Введіть повідомлення для користувача">
+        <input type="submit" value="Відправити повідомлення">
+    </form>
+
+    <div th:if="${isSent}">
+        <p style="color: green">Повідомлення успішно відправлено</p>
+    </div>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>product-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        .back-button {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .back-button input {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .back-button input:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .product-main-img {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .photo-container-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .photo-container img {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-details {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .product-details p {
+            font-size: 18px;
+            color: #555;
+            margin: 5px 0;
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .cart-button input {
+            background-color: #28a745;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .cart-button input:hover {
+            background-color: #218838;
+        }
+
+        .edit-button input {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .edit-button input:hover {
+            background-color: #e0a800;
+        }
+
+        /* Стиль кнопки wishlist */
+        .wishlist-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wishlist-btn {
+            background-color: #f5f5f5;
+            color: #333;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+        }
+
+        .wishlist-btn:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.05);
+        }
+
+        /*.wishlist-btn::before {*/
+        /*    content: "❤️";*/
+        /*    font-size: 18px;*/
+        /*}*/
+
+        .comment {
+            /*font-family: Arial, sans-serif;*/
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .comment-form textarea {
+            font-family: Arial, sans-serif;
+            width: calc(100% - 20px);
+            height: 60px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            border-radius: 5px;
+            resize: none;
+            font-size: 14px;
+        }
+
+        .comment-form input[type="submit"] {
+            padding: 5px 10px;
+            font-size: 14px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .comment-form input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+
+        .comment {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .comment p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .delete-button {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .delete-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="back-button">
+        <form th:method="GET" th:action="@{/product}">
+            <input type="submit" value="Назад до продуктів">
+        </form>
+    </div>
+
+    <h1>Інформація про продукт</h1>
+
+    <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productWithPhotos.getProductPhoto().getUrl()})}"
+         alt="Main Product Image" class="product-main-img">
+
+    <div class="photo-container-wrapper">
+        <div th:each="productPhoto : ${productWithPhotos.getProductPhotoList()}" class="photo-container">
+            <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productPhoto.getUrl()})}"
+                 alt="Product Photo">
+        </div>
+    </div>
+
+    <div class="product-details">
+        <p th:text="${'Назва: ' + productWithPhotos.getProduct().getTitle()}"></p>
+        <p th:text="${'Ціна: ' + productWithPhotos.getProduct().getPrice()}"></p>
+        <p th:text="${'Артикул: ' + productWithPhotos.getProduct().getArticle()}"></p>
+        <p th:text="${'Залишилось на складі: ' + productWithPhotos.getProduct().getCountLeft()}"></p>
+        <p th:text="${'Опис: ' + productWithPhotos.getProduct().getDescription()}"></p>
+    </div>
+
+    <div class="button-group">
+        <div th:if="${admin}">
+            <form th:method="GET" th:action="@{/product/edit/{id}(id=${productWithPhotos.getProduct().getId()})}"
+                  class="edit-button">
+                <input type="submit" value="Редагувати продукт">
+            </form>
+        </div>
+
+        <div th:if="${isPresentInCart}">
+            <form th:method="GET" th:action="@{/cart}" class="cart-button">
+                <input type="submit" value="Перейти до кошика 🛒">
+            </form>
+        </div>
+
+        <div th:unless="${isPresentInCart}">
+            <form th:method="POST" th:action="@{/cart}" class="cart-button">
+                <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+                <input type="submit" value="🛒 Додати в корзину">
+            </form>
+        </div>
+
+        <div class="wishlist-button">
+            <form th:method="POST" th:action="@{/wishlist/add}">
+                <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+                <button type="submit" class="wishlist-btn">❤️ Додати до списку бажань</button>
+            </form>
+        </div>
+    </div>
+
+    <div th:unless="${commentUser}" class="comment-form">
+        <form th:method="POST" th:action="@{/comment}" style="flex: 1;">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <textarea name="comment" placeholder="Напишіть коментар"></textarea>
+            <br>
+            <input type="submit" value="Додати коментар">
+        </form>
+
+        <p>Ви ще не залишили коментар до цього продукту. Потрібно це виправити...</p>
+    </div>
+
+
+    <!--    <div class="comment-section">-->
+    <h2>Ваш коментар</h2>
+    <div th:if="${commentUser}" class="comment">
+        <p th:text="${'Дата:' + commentUser.getCreatedAt()}"></p>
+        <br>
+        <p th:text="${commentUser.getComment()}"></p>
+        <form th:method="DELETE" th:action="@{/comment}">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <input type="submit" value="Видалити" class="delete-button">
+        </form>
+    </div>
+    <!--    </div>-->
+
+    <h2>Інші коментарі</h2>
+
+    <div th:each="comment : ${comments}" class="comment">
+        <p th:text="${'Користувач: ' + comment.getPersonId() + ', Дата:' + comment.getCreatedAt()}"></p>
+        <br>
+        <p th:text="${comment.getComment()}"></p>
+
+        <form th:if="${admin}" th:method="DELETE" th:action="@{/comment}">
+            <input type="hidden" name="productId" th:value="${productWithPhotos.getProduct().getId()}">
+            <input type="submit" value="Видалити" class="delete-button">
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

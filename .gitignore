@@ -1,0 +1,50 @@
+# Ігнорувати папку target/
+target/
+# Ігнорування файлу application.properties
+src/main/resources/application.properties
+src/test
+
+# Виняток — дозволити тільки папку src/
+!src/main/java
+!src/main/resources
+
+# Дозволити pom.xml
+!pom.xml
+
+# IntelliJ IDEA project files
+.idea/
+workspace.xml
+shelf/
+httpRequests/
+dataSources/
+dataSources.local.xml
+
+# Maven specific files
+.mvn/
+*.iml
+HELP.md
+mvnw
+mvnw.cmd
+
+# Logs
+logs/
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.swp
+*.tmp
+*.bak
+*.old
+*.orig
+
+# Build directories
+bin/
+out/
+
+# IDE-specific files
+*.ipr
+*.iws

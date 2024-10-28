@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>products-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background-color: #f5f5f5;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .logout-btn input,
+        .admin-btn input,
+        .add-btn input {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn input {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .logout-btn input:hover {
+            background-color: #0056b3;
+        }
+
+        .admin-btn input {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .admin-btn input:hover {
+            background-color: #e0a800;
+        }
+
+        .add-btn input {
+            background-color: #ffc107;
+            color: black;
+        }
+
+        .add-btn input:hover {
+            background-color: #e0a800;
+        }
+
+        .header form {
+            margin: 0;
+        }
+
+        .search-bar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .search-bar input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .search-bar button {
+            background-color: transparent;
+            border: none;
+            cursor: pointer;
+        }
+
+        .search-bar img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .search-bar select {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .icons-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .icons-container a img {
+            width: 30px;
+            height: 30px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .product {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .product:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.02);
+        }
+
+        .product img {
+            width: 100%;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .product h2 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product .price {
+            font-size: 1rem;
+            color: #666;
+        }
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .details-btn, .cart-btn button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .details-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .details-btn:hover {
+            background-color: #218838;
+        }
+
+        .cart-btn button {
+            margin-left: 4px;
+            background-color: #f5f5f5;
+            color: white;
+        }
+
+        .cart-btn button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+            gap: 15px;
+        }
+
+        .pagination-link {
+            text-decoration: none;
+            background-color: #f5f5f5;
+            color: black;
+            padding: 10px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        .pagination-link:hover {
+            background-color: darkgrey;
+        }
+
+        .current-page {
+            font-weight: bold;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <div class="button-group">
+        <!-- logout button -->
+        <form th:method="GET" th:action="@{/auth/logout}" class="logout-btn">
+            <input type="submit" value="Вийти">
+        </form>
+        <form th:if="${admin}" th:method="GET" th:action="@{/admin}" class="admin-btn">
+            <input type="submit" value="Адмін">
+        </form>
+        <form th:if="${admin}" th:method="GET" th:action="@{/product/new}" class="add-btn">
+            <input type="submit" value="Додати продукт">
+        </form>
+        <form th:method="GET" th:action="@{/person/profile}" class="add-btn">
+            <input type="submit" value="Профіль">
+        </form>
+    </div>
+
+    <!-- Search Form -->
+    <form th:method="GET" th:action="@{/product}" class="search-bar">
+        <input type="text" name="key" th:value="${key}" placeholder="Я шукаю...">
+        <button type="submit">
+            <img src="https://w7.pngwing.com/pngs/456/948/png-transparent-computer-icons-desktop-web-search-engine-wordpress-com-search-icon-search-logo-website-circle-wordpresscom-thumbnail.png"
+                 alt="Search">
+        </button>
+
+        <select name="categoryId" id="selectCategoryId">
+            <option value="" th:selected="${categoryId == null}">Всі</option>
+            <option th:each="category : ${categories}"
+                    th:value="${category.getId()}"
+                    th:text="${category.getName()}"
+                    th:selected="${categoryId==category.getId()}"
+            >
+            </option>
+        </select>
+    </form>
+
+    <div class="icons-container">
+        <!--        wishlist-->
+        <a th:href="@{/wishlist}">
+            <img src="https://w7.pngwing.com/pngs/978/882/png-transparent-wishlist-save-save-for-later-shopping-ecommerce-favorite-add-to-wishlist-ecommerce-online-shopping-icon-thumbnail.png"
+                 alt="Wishlist">
+        </a>
+        <!-- All orders -->
+        <a th:href="@{/order}">
+            <img src="https://w7.pngwing.com/pngs/485/757/png-transparent-purchase-order-sales-order-purchasing-order-gourmet-meal-thumbnail.png"
+                 alt="All Orders">
+        </a>
+        <!-- Cart icon -->
+        <a th:href="@{/cart}">
+            <img src="https://w7.pngwing.com/pngs/1008/303/png-transparent-shopping-cart-icon-product-return-shopping-cart-retail-supermarket-objects-thumbnail.png"
+                 alt="Shopping Cart">
+        </a>
+    </div>
+</div>
+
+<!-- Product Grid -->
+<div class="product-grid">
+    <div class="product" th:each="productPhotoDto : ${searchList}">
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productPhotoDto.getProductPhoto().getUrl()})}"
+             alt="Product Image">
+
+        <!-- Назва і ціна продукту -->
+        <h2 th:text="${productPhotoDto.getProduct().getTitle()}"></h2>
+        <p class="price" th:text="${productPhotoDto.getProduct().getPrice() + '$'}"></p>
+
+        <!-- Кнопки для додавання в корзину і перегляду -->
+        <div class="product-footer">
+            <a class="details-btn"
+               th:href="@{/product/{id} (id=${productPhotoDto.getProduct().getId()})}">Детальніше</a>
+            <form th:method="POST" th:action="@{/cart}" class="cart-btn">
+                <input type="hidden" name="productId" th:value="${productPhotoDto.getProduct().getId()}">
+                <button type="submit">🛒</button>
+            </form>
+            <form th:method="POST" th:action="@{/wishlist/add}" class="cart-btn">
+                <input type="hidden" name="productId" th:value="${productPhotoDto.getProduct().getId()}">
+                <button type="submit">❤️</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="pagination">
+    <a th:if="${currentPage > 0}"
+       th:href="@{'/product?page=' + ${currentPage - 1} + '&size=' + 10
+       + ${categoryId != null ? '&categoryId=' + categoryId : ''}
+       + ${key != null ? '&key=' + key : ''}}"
+       class="pagination-link">⏪ Попередня </a>
+
+    <span class="current-page"><span th:text="${currentPage + 1}"></span></span>
+
+    <a th:if="${currentPage< totalPages - 1}"
+       th:href="@{'/product?page=' + ${currentPage + 1} + '&size=' + 10
+       + ${categoryId != null ? '&categoryId=' + categoryId : ''}
+       + ${key != null ? '&key=' + key : ''}}"
+       class="pagination-link"> Наступна ⏩</a>
+</div>
+
+</body>
+</html>
