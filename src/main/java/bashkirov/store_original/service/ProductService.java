@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 //генеруємо артикл для продукту, зберігаєм продукт , створюєм ключ, зберігаєм фотку
 @Service
@@ -231,7 +229,7 @@ public class ProductService {
         );
     }
 
-    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
+//    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void autoFinishSaleProduct(ProductSaleDto productSaleDto) {
         Product product = getById(productSaleDto.getProductId());
         if (product.getDateExpired().isBefore(LocalDateTime.now())) {

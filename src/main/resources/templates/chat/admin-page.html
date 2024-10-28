@@ -2,15 +2,134 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>admin-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        .message-box {
+            width: 100%;
+            height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            overflow-y: auto;
+            resize: both;
+            font-size: 16px;
+            margin-bottom: 15px;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        textarea.chat-input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            resize: both;
+            height: 60px;
+        }
+
+        .send-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .send-btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .send-btn:active {
+            transform: scale(0.98);
+        }
+
+        .product-btn {
+            display: inline-block;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            font-size: 18px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .product-btn:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .product-btn:active {
+            transform: scale(0.98);
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            textarea.chat-input {
+                font-size: 14px;
+            }
+
+            .send-btn {
+                padding: 10px;
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 <body>
-<p>admin-page</p>
-<div>
-    <textarea id="messageBox" rows="10" cols="30" readonly></textarea>
-    <br>
-    <input type="text" id="message" placeholder="Введіть ваше повідомлення(userId:message)">
-    <button onclick="sendMessage()">Відправити</button>
+<div class="container">
+    <h1>Чат Адміністратора</h1>
+
+    <textarea id="messageBox" class="message-box" readonly></textarea>
+
+    <div class="input-container">
+        <textarea id="message" class="chat-input"
+                  placeholder="Введіть ваше повідомлення (userId:message)"></textarea>
+        <button class="send-btn" onclick="sendMessage()">Відправити</button>
+    </div>
+
+    <form th:action="@{/product}">
+        <button type="submit" class="product-btn">До продуктів</button>
+    </form>
 </div>
 
 <script type="text/javascript">
@@ -19,12 +138,15 @@
     socket.onmessage = function (event) {
         let messageBox = document.getElementById("messageBox");
         messageBox.value += event.data + '\n';
+        messageBox.scrollTop = messageBox.scrollHeight;
     };
 
     function sendMessage() {
         let message = document.getElementById("message").value;
-        socket.send(message);
-        document.getElementById("message").value = '';
+        if (message.trim() !== "") {
+            socket.send(message);
+            document.getElementById("message").value = '';
+        }
     }
 </script>
 

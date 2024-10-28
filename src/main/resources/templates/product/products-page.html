@@ -229,6 +229,11 @@
         <form th:method="GET" th:action="@{/person/profile}" class="add-btn">
             <input type="submit" value="Профіль">
         </form>
+        <div th:if="${admin}">
+            <form th:method="GET" th:action="@{/chat/admin}" class="add-btn">
+                <input type="submit" value="Чат">
+            </form>
+        </div>
     </div>
 
     <!-- Search Form -->
@@ -251,6 +256,13 @@
     </form>
 
     <div class="icons-container">
+        <!--        chat-->
+        <div th:unless="${admin}">
+        <a th:href="@{/chat}">
+            <img src="https://w7.pngwing.com/pngs/941/403/png-transparent-chat-chatting-communication-conversation-email-mail-message-mobile-basic-icon.png"
+                 alt="Chat">
+        </a>
+        </div>
         <!--        wishlist-->
         <a th:href="@{/wishlist}">
             <img src="https://w7.pngwing.com/pngs/978/882/png-transparent-wishlist-save-save-for-later-shopping-ecommerce-favorite-add-to-wishlist-ecommerce-online-shopping-icon-thumbnail.png"

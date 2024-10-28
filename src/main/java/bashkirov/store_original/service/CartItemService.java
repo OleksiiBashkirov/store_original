@@ -12,7 +12,7 @@ import bashkirov.store_original.security.PersonDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -42,8 +42,8 @@ public class CartItemService {
 
         if (cartItem.getPersonId() == person.getId()) {
             jdbcTemplate.update(
-                    "delete from cart_item where id = ?",       //!!!
-                    cartItemId                                //!!!
+                    "delete from cart_item where id = ?",
+                    cartItemId
             );
         } else {
             throw new AccessDeniedException("This cartItem with id= " + cartItemId + " not belongs to you");
@@ -106,16 +106,7 @@ public class CartItemService {
         Optional<CartItem> optionalCartItem = jdbcTemplate.query(
                 "select * from cart_item where id = ?",
                 new Object[]{cartItemId},
-                (rs, rowNum) -> {
-                    CartItem cartItem = new CartItem();
-                    cartItem.setId(rs.getInt("id"));
-                    cartItem.setPersonId(rs.getInt("person_id"));
-                    cartItem.setProductId(rs.getInt("product_id"));
-                    cartItem.setQuantity(rs.getInt("quantity"));
-                    cartItem.setOrderId(rs.getInt("order_id"));
-                    return cartItem;
-                }
-//                new BeanPropertyRowMapper<>(CartItem.class)
+                getCartItemRowMapper()
         ).stream().findAny();
 
         Person person = getCurrentUser();
@@ -149,6 +140,18 @@ public class CartItemService {
         }
     }
 
+    private static RowMapper<CartItem> getCartItemRowMapper() {
+        return (rs, rowNum) -> {
+            CartItem cartItem = new CartItem();
+            cartItem.setId(rs.getInt("id"));
+            cartItem.setPersonId(rs.getInt("person_id"));
+            cartItem.setProductId(rs.getInt("product_id"));
+            cartItem.setQuantity(rs.getInt("quantity"));
+            cartItem.setOrderId(rs.getInt("order_id"));
+            return cartItem;
+        };
+    }
+
     private Person getCurrentUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
@@ -162,7 +165,7 @@ public class CartItemService {
     // його кількість більша ніж товарів в наявності
     // то ми йому зменшуємо кількість товарів  в корзині або видаляєм
     // цей карт айтем якщо товару не залишилось більше
-    @Scheduled(fixedRate = 60000)
+//    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
     public void validateProductQuantity() {
 
         List<CartItem> cartItemList = jdbcTemplate.query(
