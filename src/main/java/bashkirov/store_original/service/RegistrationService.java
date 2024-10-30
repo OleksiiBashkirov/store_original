@@ -25,7 +25,7 @@ public class RegistrationService {
         emailService.sendEmail(new EmailDto(
                 person.getEmail(),
                 "Activation key",
-                "To activate account please follow the link\nhttp://localhost:8080/activate/" + key
+                "To activate account please follow the link\nhttps://store.bashkirov.space/activate/" + key
         ));
 
         jdbcTemplate.update(

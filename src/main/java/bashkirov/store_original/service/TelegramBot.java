@@ -22,20 +22,38 @@ public class TelegramBot extends TelegramLongPollingBot {
             "Акційні пропозиції",
             "Про нас",
             "Пошук",
-            "Потрібна допомога");
+            "Потрібна допомога"
+//            "Замовити дзвінок"
+    );
 
     private final BotConfig botConfig;
     private final ProductService productService;
+    private final TelegramUserService telegramUserService;
 
-    public TelegramBot(BotConfig botConfig, ProductService productService) {
+    public TelegramBot(BotConfig botConfig, ProductService productService, TelegramUserService telegramUserService) {
         super(botConfig.getToken());
         this.botConfig = botConfig;
         this.productService = productService;
+        this.telegramUserService = telegramUserService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         long chatId = update.getMessage().getChatId();
+
+//        if (telegramUserService.getByChatId(chatId).isEmpty()) {
+//            TelegramUser telegramUser = new TelegramUser();
+//
+//            telegramUser.setChatId(chatId);
+//            telegramUser.setUsername(update.getMessage().getChat().getUserName());
+//            telegramUser.setPhone(update.getMessage().getContact().getPhoneNumber());
+//            telegramUser.setName(update.getMessage().getChat().getFirstName());
+//            telegramUser.setName(update.getMessage().getChat().getLastName());
+//
+//            telegramUserService.save(telegramUser);
+//        }
+
+
         if (update.getMessage().hasText()) {
             sendChatAction(chatId, ActionType.TYPING);
             String message = update.getMessage().getText();
@@ -78,6 +96,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     getHelpInfo(),
                     DEFAULT_BUTTONS
             );
+//            case "замовити дзвінок" -> orderPhoneCall(
+//                    chatId
+//            );
             default -> handleSearchQuery(message, chatId);
         }
     }
@@ -111,7 +132,46 @@ public class TelegramBot extends TelegramLongPollingBot {
             System.out.println("Не вдалось відправити повідомлення з кнопками");
         }
     }
+/*
+    private void orderPhoneCall(long chatId) {
+        TelegramUser byChatId = telegramUserService.getByChatId(chatId).get();
+        if (byChatId.getPhone() != null) {
+            // TODO зробити таблицю із заказами для дзвінків ->
+            //  адмін має сторінку з цими дзвінками ->
+            //  на пошту має приходити, що дзвінок замовлено
 
+            sendMessageWithButtons(
+                    chatId,
+                    "Очікуйте дзвінок протягом 2 хвилин",
+                    DEFAULT_BUTTONS);
+            return;
+        }
+
+        String buttonText = "Введіть номер телефону";
+        SendMessage sendMessage = new SendMessage();
+        sendMessage.setChatId(chatId);
+        sendMessage.setReplyMarkup(getButtonWithRequiredContact(buttonText));
+        try {
+            execute(sendMessage);
+        } catch (TelegramApiException e) {
+            System.out.println("Не вдалось попросити телефон");
+        }
+    }
+
+    private ReplyKeyboardMarkup getButtonWithRequiredContact(String text) {
+        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup();
+        KeyboardRow keyboardRow = new KeyboardRow();
+        KeyboardButton keyboardButton = new KeyboardButton(text);
+
+        keyboardButton.setRequestContact(true);
+        keyboardRow.add(keyboardButton);
+
+        List<KeyboardRow> keyboard = Collections.singletonList(keyboardRow);
+        replyKeyboardMarkup.setKeyboard(keyboard);
+
+        return replyKeyboardMarkup;
+    }
+*/
     private void onStart(long chatId) {
         String message = """
                 Вітаємо Вас в BashkirovShopBot!

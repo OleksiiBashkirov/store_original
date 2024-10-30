@@ -103,7 +103,7 @@
     <form th:method="POST" th:action="@{/order}" th:object="${orderNew}">
         <label for="deliveryAddressId">Адреса доставки</label>
         <input type="text" th:field="*{deliveryAddress}" id="deliveryAddressId" placeholder="Введіть адресу">
-        <div class="error" th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}"></div>
+<!--        <div class="error" th:if="${#fields.hasErrors('deliveryAddress')}" th:errors="*{deliveryAddress}"></div>-->
 
         <label for="commentId">Коментар</label>
         <input type="text" th:field="*{comment}" id="commentId" placeholder="Додайте коментар (не обов'язково)">
