@@ -2,6 +2,7 @@ package bashkirov.store_original.service;
 
 import bashkirov.store_original.dto.CartItemDto;
 import bashkirov.store_original.dto.ProductPhotoDto;
+import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.exception.AccessDeniedException;
 import bashkirov.store_original.exception.CartItemNotFoundException;
 import bashkirov.store_original.model.CartItem;
@@ -26,6 +27,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class CartItemService {
+    private static final Person DEFAULT_USER = new Person(
+            0, // Default ID
+            "Anonymous", // Default name
+            "User", // Default lastname
+            "00000, Unknown, Anonymous Street", // Default address
+            "+0000000000", // Default phone
+            "anonymous@example.com", // Default email
+            "guest", // Default username
+            "", // No password needed
+            Role.ROLE_GUEST, // Define a guest role in your Role enum
+            true // Enable the default user
+    );
+
     private final JdbcTemplate jdbcTemplate;
     private final ProductService productService;
     private final PhotoService photoService;
@@ -89,7 +103,7 @@ public class CartItemService {
         );
 
         if ((product.getCountLeft() - 1) < 0) {
-            throw new IllegalArgumentException("Product left = " + product.getCountLeft() + ". You should order this quantity or less");
+            throw new IllegalArgumentException("Кількість товару на складі = " + product.getCountLeft() + ". Вибачте, товар закінчився або необхідно обрати кількість не більшу ніж на складі.");
         }
 
         Person person = getCurrentUser();
@@ -158,7 +172,7 @@ public class CartItemService {
             PersonDetails userDetails = (PersonDetails) authentication.getPrincipal();
             return userDetails.person();
         }
-        return null;
+        return DEFAULT_USER;
     }
 
     // якщо продукт який в карт айтемі в якого ордер_ід null і

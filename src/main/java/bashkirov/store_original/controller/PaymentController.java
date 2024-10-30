@@ -43,7 +43,7 @@ public class PaymentController {
             return "payment/payment-page";
         }
         paymentService.makePayment(orderId);
-        return "redirect:/order/" + orderId;
+        return "payment/payment-success-page";
     }
 
 

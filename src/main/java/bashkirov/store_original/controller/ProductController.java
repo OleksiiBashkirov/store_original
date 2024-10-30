@@ -1,14 +1,11 @@
 package bashkirov.store_original.controller;
 
+import bashkirov.store_original.dto.ProductPhotoDto;
 import bashkirov.store_original.dto.ProductSaleDto;
 import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.security.PersonDetails;
-import bashkirov.store_original.service.CartItemService;
-import bashkirov.store_original.service.CategoryService;
-import bashkirov.store_original.service.CommentService;
-import bashkirov.store_original.service.PhotoService;
-import bashkirov.store_original.service.ProductService;
+import bashkirov.store_original.service.*;
 import bashkirov.store_original.validation.ProductSaleValidator;
 import bashkirov.store_original.validation.ProductValidator;
 import jakarta.validation.Valid;
@@ -18,15 +15,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/product")
@@ -49,14 +42,13 @@ public class ProductController {
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
-        if (personDetails.person().getRole().equals(Role.ROLE_ADMIN)) {
-            model.addAttribute("admin", true);
-        }
+        boolean isAdmin = personDetails != null &&
+                personDetails.person().getRole().equals(Role.ROLE_ADMIN);
+        model.addAttribute("admin", isAdmin);
 
         int totalProducts = (categoryId == null) ?
                 productService.countProducts() :
                 productService.countProductsByCategory(categoryId);
-
         int totalPages = (int) Math.ceil((double) totalProducts / size);
 
         model.addAttribute("totalPages", totalPages);
@@ -65,11 +57,19 @@ public class ProductController {
         model.addAttribute("key", key);
         model.addAttribute("categoryId", categoryId);
 
-        if (categoryId == null) {
-            model.addAttribute("searchList", productService.search(key, null, page, size));
-        } else {
-            model.addAttribute("searchList", productService.getAllByCategoryId(categoryId, page, size));
-        }
+//        if (categoryId == null) {
+//            model.addAttribute("searchList", productService.search(key, null, page, size));
+//        } else {
+//            model.addAttribute("searchList", productService.getAllByCategoryId(categoryId, page, size));
+//        }
+        //знижки
+        List<ProductPhotoDto> products = productService.searchWithDiscount(key, categoryId, page, size);
+        model.addAttribute("searchList", products);
+
+
+        model.addAttribute("productSaleDtoList", productService.getAllProductSaleDto());
+
+
         return "product/products-page";
     }
 
@@ -79,22 +79,51 @@ public class ProductController {
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
-        boolean isAdmin = personDetails.person().getRole().equals(Role.ROLE_ADMIN);
+        boolean isAdmin = personDetails != null &&
+                personDetails.person().getRole().equals(Role.ROLE_ADMIN);
         model.addAttribute("admin", isAdmin);
 
+        Product product = productService.getById(id);
+        Optional<ProductSaleDto> productSaleDto = productService.getOptionalProductSaleDto(product.getId());
+        model.addAttribute("product", product);
+        model.addAttribute("hasProductSaleDto", productSaleDto.isPresent());
+        model.addAttribute("productSaleDto", productSaleDto.orElse(null));
+        model.addAttribute("actualPrice", productService.getActualPrice(product));
+
+        if (personDetails != null) {
+            model.addAttribute("commentUser",
+                    commentService.getOptionalUserComment(id).orElse(null));
+        }
+
         model.addAttribute("comments", commentService.getAllProductComments(id));
-        model.addAttribute("commentUser", commentService.getOptionalUserComment(id).orElse(null));
-
-//        if (optionalComment.isPresent()) {
-//            model.addAttribute("commentUser", optionalComment.get());
-//        } else {
-//            model.addAttribute("commentUser", false);
-//        }
-
         model.addAttribute("isPresentInCart", cartItemService.isProductPresentInCart(id));
         model.addAttribute("productWithPhotos", productService.getProductWithPhotos(id));
         return "product/product-page";
     }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/cancel-sale/{id}")
+    public String cancelSale(
+            @PathVariable("id") int productId
+    ) {
+        productService.cancelSaleProduct(productId);
+        return "redirect:/product/" + productId;
+    }
+
+    @GetMapping("/sales")
+    public String showAllSaleProducts(
+            Model model,
+            @AuthenticationPrincipal PersonDetails personDetails
+
+    ) {
+        boolean isAdmin = personDetails != null &&
+                personDetails.person().getRole().equals(Role.ROLE_ADMIN);
+
+        model.addAttribute("admin", isAdmin);
+        model.addAttribute("productSaleDtoList", productService.getAllProductSaleDto());
+        return "sale/sales-page";
+    }
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/new")
@@ -151,12 +180,6 @@ public class ProductController {
         return "redirect:/product/" + id;
     }
 
-    /*
-    методи в контролері:
-        1. Видалення фотки за ід фотки
-        2. Зробити фотку праймарі
-        3. Добавити фотки за ід продукту
-     */
     @DeleteMapping("/delete-photo/{photoId}")
     public String deletePhotoById(
             @RequestParam("productId") int productId,
@@ -195,32 +218,53 @@ public class ProductController {
     }
 
     @GetMapping("/sale/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public String salePage(
             @PathVariable("id") int productId,
-            Model model,
-            @ModelAttribute("productSaleDto") ProductSaleDto productSaleDto
-            ) {
+//            @ModelAttribute("productPhotoDto") ProductPhotoDto productPhotoDto,
+//            @ModelAttribute("productSaleDto") ProductSaleDto productSaleDto,
+            Model model
+    ) {
+        Product product = productService.getById(productId);
+        ProductPhotoDto productPhotoDtoById = new ProductPhotoDto(product, photoService.getPrimaryPhotoByProductId(product.getId()));
+        ProductSaleDto productSaleDto = new ProductSaleDto(productPhotoDtoById, product.getPrice(),1);
+
+        model.addAttribute("product", product);
+        model.addAttribute("productPhotoDto", productPhotoDtoById);
+        model.addAttribute("productSaleDto", productSaleDto);
         return "sale/sale-page";
     }
 
-    @PostMapping("/sale")
-    public String addSale(
+    @PutMapping("/sale/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String updateSaleProduct(
+            @PathVariable("id") int productId,
+//            @ModelAttribute("productPhotoDto") ProductPhotoDto productPhotoDto,
             @Valid @ModelAttribute("productSaleDto") ProductSaleDto productSaleDto,
             BindingResult bindingResult
+//            Model model
     ) {
-        productSaleValidator.validate(productSaleDto, bindingResult);
-        if (bindingResult.hasErrors()) {
-            return "sale/sale-page";
-        }
+//        productSaleValidator.validate(productSaleDto, bindingResult);
+//        if (bindingResult.hasErrors()) {
+//            return "sale/sale-page";
+//        }
+//        model.addAttribute("product", productService.getById(productId));
         productService.addSaleProduct(productSaleDto);
-        return "redirect:/product/" + productSaleDto.getProductId();
+        return "redirect:/product/" + productId;
+//                + productSaleDto.getProductPhotoDto().getProduct().getId();
     }
 
-    // ДЗ: сторінки зробити, додати кнопки, додати логіку:
-    // якщо є акція, бачити інфо акції, якщо немає акції,
-    // бачити звичайне інфо продукта
-    // скасувати акцію -> кнопка
-    // доробити чат
+
+    // ДЗ:
+    // (+) додати кнопки, додати логіку:
+    // (+) бачити звичайне інфо продукта
+    // (+)скасувати акцію -> кнопка
+    // (+)доробити чат
+//********************************************
+    // * сторінки зробити,
+    // * якщо є акція, бачити інфо акції, якщо немає акції,
+//********************************************
+
     // наступне заняття: телеграм
 
 }

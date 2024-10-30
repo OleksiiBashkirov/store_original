@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 //генеруємо артикл для продукту, зберігаєм продукт , створюєм ключ, зберігаєм фотку
 @Service
@@ -182,6 +184,35 @@ public class ProductService {
         return transformProductToProductPhotoDto(productList);
     }
 
+    public List<ProductPhotoDto> getAllProductsWithDiscountInfo(int page, int size) {
+        List<ProductPhotoDto> productPhotoDtos = getAllProductPhotos(page, size);
+        productPhotoDtos.forEach(productPhotoDto -> {
+            getOptionalProductSaleDto(productPhotoDto.getProduct().getId()).ifPresent(
+                    productSaleDto -> {
+                        productPhotoDto.getProduct().setSalePrice(productSaleDto.getSalePrice());
+                        productPhotoDto.getProduct().setDateExpired(productSaleDto.getProductPhotoDto().getProduct().getDateExpired());
+                    }
+            );
+        });
+
+        return productPhotoDtos;
+    }
+
+    public List<ProductPhotoDto> searchWithDiscount(String key, Integer categoryId, int page, int size) {
+        List<ProductPhotoDto> productPhotoDtos = search(key, categoryId, page, size);
+
+        productPhotoDtos.forEach(productPhotoDto -> {
+            getOptionalProductSaleDto(productPhotoDto.getProduct().getId()).ifPresent(
+                    productSaleDto -> {
+                        productPhotoDto.getProduct().setSalePrice(productSaleDto.getSalePrice());
+                        productPhotoDto.getProduct().setDateExpired(productSaleDto.getProductPhotoDto().getProduct().getDateExpired());
+                    }
+            );
+        });
+
+        return productPhotoDtos;
+    }
+
     public List<ProductPhotoDto> getAllByCategoryId(int categoryId, int page, int size) {
 
         List<Product> query = jdbcTemplate.query(
@@ -210,30 +241,148 @@ public class ProductService {
     }
 
     public void addSaleProduct(ProductSaleDto productSaleDto) {
-        Product product = getById(productSaleDto.getProductId());
+        Product product = getById(productSaleDto.getProductPhotoDto().getProduct().getId());
         LocalDateTime dateExpired = LocalDateTime.now().plusHours(productSaleDto.getHours());
 
         jdbcTemplate.update(
                 "update product set sale_price = ?, date_expired = ? where id = ?",
                 productSaleDto.getSalePrice(),
-                productSaleDto.getHours(),
+                dateExpired,
                 product.getId()
         );
     }
 
     public void cancelSaleProduct(int productId) {
-        Product product = getById(productId);
         jdbcTemplate.update(
                 "update product set sale_price = NULL , date_expired = NULL where id = ?",
                 productId
         );
     }
 
-//    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
-    public void autoFinishSaleProduct(ProductSaleDto productSaleDto) {
-        Product product = getById(productSaleDto.getProductId());
-        if (product.getDateExpired().isBefore(LocalDateTime.now())) {
+    public Optional<ProductSaleDto> getOptionalProductSaleDto(int productId) {
+        ProductPhotoDto productPhotoDto = getProductPhotoDtoByProductId(productId);
+
+        if (productPhotoDto.getProduct().getSalePrice() != null &&
+                productPhotoDto.getProduct().getDateExpired() != null &&
+                productPhotoDto.getProduct().getDateExpired().isAfter(LocalDateTime.now())) {
+            return Optional.of(new ProductSaleDto(
+                    productPhotoDto,
+                    productPhotoDto.getProduct().getSalePrice(),
+                    (int) java.time.Duration.between(
+                            LocalDateTime.now(),
+                            productPhotoDto.getProduct().getDateExpired()).toHours()
+            ));
+        }
+        return Optional.empty();
+    }
+
+    public List<ProductSaleDto> getAllProductSaleDto() {
+        List<Product> productList = jdbcTemplate.query(
+                "select * from defaultdb.public.product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
+                new BeanPropertyRowMapper<>(Product.class)
+        );
+
+        List<ProductPhotoDto> productPhotoDtos = transformProductToProductPhotoDto(productList);
+
+        List<ProductSaleDto> productSaleDtoList = new ArrayList<>();
+        for (ProductPhotoDto productPhotoDto : productPhotoDtos) {
+            productSaleDtoList.add(new ProductSaleDto(
+                    productPhotoDto,
+                    productPhotoDto.getProduct().getSalePrice(),
+                    (int) java.time.Duration.between(
+                            LocalDateTime.now(),
+                            productPhotoDto.getProduct().getDateExpired()).toHours()));
+        }
+        return productSaleDtoList;
+    }
+
+    public String getFiveRandomProductSaleDto() {
+        List<Product> productList = jdbcTemplate.query(
+                "select * from defaultdb.public.product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
+                new BeanPropertyRowMapper<>(Product.class)
+        );
+
+        int size = Math.min(productList.size(), 5);
+        List<Product> randomProducts = new ArrayList<>();
+
+        while (randomProducts.size() < size) {
+            int randomIndex = (int) (Math.random() * productList.size());
+            Product randomProduct = productList.get(randomIndex);
+            if (!randomProducts.contains(randomProduct)) {
+                randomProducts.add(randomProduct);
+            }
+        }
+
+        List<ProductPhotoDto> productPhotoDtos = transformProductToProductPhotoDto(randomProducts);
+
+        List<ProductSaleDto> fiveRandomProductSaleDtoList = new ArrayList<>();
+        for (ProductPhotoDto productPhotoDto : productPhotoDtos) {
+            fiveRandomProductSaleDtoList.add(new ProductSaleDto(
+                    productPhotoDto,
+                    productPhotoDto.getProduct().getSalePrice(),
+                    (int) java.time.Duration.between(
+                            LocalDateTime.now(),
+                            productPhotoDto.getProduct().getDateExpired()).toHours()));
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("🔥 *Акційні Пропозиції* 🔥\n\n");
+
+        for (ProductSaleDto productSaleDto : fiveRandomProductSaleDtoList) {
+            String productTitle = productSaleDto.getProductPhotoDto().getProduct().getTitle();
+            String productUrl = "http://localhost:8080/product/" + productSaleDto.getProductPhotoDto().getProduct().getId();
+            String productUrl2 = "https://www.google.com.ua/?hl=uk";
+            String productUrl3 = "https://store.bashkirov.space/product/" + productSaleDto.getProductPhotoDto().getProduct().getId();
+            String photoUrl = "https://bashkirovbank.fra1.digitaloceanspaces.com/" + productSaleDto.getProductPhotoDto().getProductPhoto().getUrl();
+
+            sb.append("🛒 *Продукт*: ").append(productTitle).append("\n")
+                    .append("📷 [Фото](").append(photoUrl).append(")\n")
+                    .append("💲 *Стара ціна*: ").append(productSaleDto.getProductPhotoDto().getProduct().getPrice()).append(" грн\n")
+                    .append("💥 *Акційна ціна*: ").append(productSaleDto.getSalePrice()).append(" грн\n")
+                    .append("⏳ Діє ще: ").append(productSaleDto.getHours()).append(" годин\n")
+                    .append("🔗 [Деталі продукту](").append(productUrl3).append(")\n\n");
+        }
+        return sb.toString();
+    }
+
+    public String getInfoAboutUs() {
+        return """
+                🏪 *BashkirovShop* – Ваш надійний партнер для вигідних покупок!
+                
+                📞 Контактний номер: +38 (073) 001-003-1
+                🌐 Вебсайт: [bashkirov.shop](https://store.bashkirov.space/product)
+                🕒 Графік роботи: Пн-Пт 9:00 - 18:00
+                
+                Ми раді допомогти вам з будь-якими питаннями!
+                Дякуємо, що обираєте нас ❤️
+                """;
+    }
+
+
+    public Double getActualPrice(Product product) {
+        return getOptionalProductSaleDto(product.getId())
+                .map(ProductSaleDto::getSalePrice)
+                .orElse(product.getPrice());
+    }
+
+    @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
+    public void autoFinishSaleProduct() {
+        List<Product> products = jdbcTemplate.query(
+                "select * from defaultdb.public.product where date_expired <= NOW()",
+                new BeanPropertyRowMapper<>(Product.class)
+        );
+
+        for (Product product : products) {
             cancelSaleProduct(product.getId());
         }
+    }
+
+    private ProductPhotoDto getProductPhotoDtoByProductId(int productId) {
+        Product product = getById(productId);
+        ProductPhoto productPhoto = jdbcTemplate.query(
+                "select * from product_photo where product_id = ?",
+                new Object[]{product.getId()},
+                new BeanPropertyRowMapper<>(ProductPhoto.class)
+        ).stream().findAny().orElseThrow();
+        return new ProductPhotoDto(product, productPhoto);
     }
 }

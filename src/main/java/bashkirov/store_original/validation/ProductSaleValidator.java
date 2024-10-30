@@ -23,7 +23,19 @@ public class ProductSaleValidator implements Validator {
     @Override
     public void validate(Object target, Errors errors) {
         ProductSaleDto productSaleDto = (ProductSaleDto) target;
-        Product product = productService.getById(productSaleDto.getProductId());
+
+        if (productSaleDto.getProductPhotoDto() == null ||
+                productSaleDto.getProductPhotoDto().getProduct() == null) {
+            errors.rejectValue(
+                    "productPhotoDto",
+                    "",
+                    "Дані про продукт відсутні. Перевірте, чи правильно заповнені дані продукту."
+            );
+            return;
+        }
+
+
+        Product product = productService.getById(productSaleDto.getProductPhotoDto().getProduct().getId());
         if (productSaleDto.getSalePrice() >= product.getPrice()) {
             errors.rejectValue(
                     "sale_price",

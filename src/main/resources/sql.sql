@@ -12,6 +12,10 @@ create table person
     is_enable boolean            not null
 );
 drop table person;
+insert into person (name, lastname, address, phone, email, username, password, role, is_enable)
+values ('Anonymous', 'User', '00000, Unknown, Anonymous Street', '+0000000000',
+        'anonymous@example.com', 'guest', '', 'GUEST', true);
+
 
 create table category
 (

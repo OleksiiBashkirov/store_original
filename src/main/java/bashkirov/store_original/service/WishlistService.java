@@ -43,8 +43,8 @@ public class WishlistService {
     public void addProductToWishList(int productId) {
         Person person = personDetailsService.getCurrentUser();
         Optional<Wishlist> wishlist = jdbcTemplate.query(
-                "select * from wishlist where product_id = ?",
-                new Object[]{productId},
+                "select * from wishlist where product_id = ? and person_id = ?",
+                new Object[]{productId, person.getId()},
 //                new BeanPropertyRowMapper<>(Wishlist.class)
                 (rs, rowNum) -> {
                     Wishlist wishlist1 = new Wishlist();

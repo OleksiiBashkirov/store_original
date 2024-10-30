@@ -108,7 +108,7 @@
             transform: scale(1.05);
         }
 
-        .cart-button input {
+        .cart-button input, .edit-button input {
             background-color: #28a745;
             border: none;
             padding: 10px 20px;
@@ -131,7 +131,6 @@
             background-color: #e0a800;
         }
 
-        /* Стиль кнопки wishlist */
         .wishlist-button {
             display: flex;
             align-items: center;
@@ -157,11 +156,6 @@
             background-color: #e0e0e0;
             transform: scale(1.05);
         }
-
-        /*.wishlist-btn::before {*/
-        /*    content: "❤️";*/
-        /*    font-size: 18px;*/
-        /*}*/
 
         .comment {
             /*font-family: Arial, sans-serif;*/
@@ -231,6 +225,42 @@
         .delete-button:hover {
             background-color: #5a6268;
         }
+
+        .price {
+            font-size: 1rem;
+            /*text-decoration: line-through;*/
+            margin-bottom: 5px;
+        }
+
+        .sale-price {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .hours-left {
+            margin-top: -5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: red;
+        }
+
+        .edit-button button {
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .edit-button button:hover {
+            background-color: #e0a800;
+            transform: scale(1.05);
+        }
     </style>
 </head>
 <body>
@@ -255,7 +285,31 @@
 
     <div class="product-details">
         <p th:text="${'Назва: ' + productWithPhotos.getProduct().getTitle()}"></p>
-        <p th:text="${'Ціна: ' + productWithPhotos.getProduct().getPrice()}"></p>
+
+        <div th:if="${hasProductSaleDto}">
+            <p class="price" style="text-decoration: line-through" th:text="${'Стара ціна: ' + product.getPrice() + '$'}"></p>
+            <p class="sale-price" style="color: red; font-weight: bold"  th:text="${'Знижка: ' + productSaleDto.getSalePrice() + '$'}"></p>
+
+            <p class="hours-left" style="color: red; font-weight: bold"
+               th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productSaleDto.getProductPhotoDto().getProduct().getDateExpired())}"
+               th:text="${duration.toHours() < 1
+                ? 'Остання година'
+                 : (duration.toDays() > 0
+                  ? 'Акція діє ще ' + duration.toDays() + ' дн. ' + (duration.toHours() % 24) + ' год.'
+                  : 'Акція діє ще ' + duration.toHours() + ' год.') }">
+            </p>
+
+            <div th:if="${admin && hasProductSaleDto}" class="edit-button">
+                <form th:method="POST" th:action="@{/product/cancel-sale/{id}(id=${product.getId()})}">
+                    <button type="submit">Скасувати знижку</button>
+                </form>
+            </div>
+        </div>
+
+        <div th:unless="${hasProductSaleDto}">
+            <p class="price" th:text="${'Ціна: ' + productWithPhotos.getProduct().getPrice()}"></p>
+        </div>
+
         <p th:text="${'Артикул: ' + productWithPhotos.getProduct().getArticle()}"></p>
         <p th:text="${'Залишилось на складі: ' + productWithPhotos.getProduct().getCountLeft()}"></p>
         <p th:text="${'Опис: ' + productWithPhotos.getProduct().getDescription()}"></p>

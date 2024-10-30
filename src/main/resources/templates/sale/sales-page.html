@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sales</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: #f5f5f5;
+            padding: 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            /*font-size: 2rem;*/
+            /*color: #333;*/
+
+            font-size: 2rem;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .back-btn input {
+            padding: 10px 15px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            background-color: #007bff;
+            color: white;
+            transition: background-color 0.3s;
+        }
+
+        .back-btn input:hover {
+            background-color: #0056b3;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .product {
+            background-color: white;
+            border-radius: 5px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .product:hover {
+            background-color: #e0e0e0;
+            transform: scale(1.02);
+        }
+
+        .product img {
+            width: 100%;
+            border-bottom: 1px solid #ddd;
+            margin-bottom: 10px;
+        }
+
+        .badge-sale {
+            position: marker;
+            top: 10px;
+            left: 10px;
+            background-color: transparent;
+            padding: 0;
+            border-radius: 5px;
+        }
+
+        .price {
+            font-size: 1rem;
+            text-decoration: line-through;
+            margin-bottom: 5px;
+        }
+
+        .sale-price {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+
+        .hours-left {
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+
+        .product h2 {
+            font-size: 1.2rem;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        /*.product .price {*/
+        /*    font-size: 1rem;*/
+        /*    color: #666;*/
+        /*}*/
+
+        .product-footer {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        .details-btn, .cart-btn button {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .details-btn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .details-btn:hover {
+            background-color: #218838;
+        }
+
+        .cart-btn button {
+            margin-left: 4px;
+            background-color: #f5f5f5;
+            color: white;
+        }
+
+        .cart-btn button:hover {
+            background-color: #f5f5f5;
+        }
+
+        .cancel-sale-btn {
+            background-color: #ffc107;
+            color: black;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .cancel-sale-btn:hover {
+            background-color: #e0a800;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <form th:method="GET" th:action="@{/product}" class="back-btn">
+        <input type="submit" value="Повернутись до продуктів">
+    </form>
+    <h1>Акційні пропозиції</h1>
+</div>
+
+<div class="product-grid">
+    <div class="product" th:each="productSaleDto : ${productSaleDtoList}">
+        <div class="badge-sale">
+            <img src="https://w7.pngwing.com/pngs/180/150/png-transparent-computer-graphics-discounts-and-allowances-red-promotions-computer-graphics-text-hand-rectangle.png"
+                 alt="Акція" style="width: 50px; height: auto;">
+        </div>
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productSaleDto.getProductPhotoDto().getProductPhoto().getUrl()})}"
+             alt="Product Image">
+
+        <p class="price" style="text-decoration: line-through;"
+           th:text="${'Стара ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice() + '$'}"></p>
+        <p class="sale-price" th:text="${'Нова ціна: ' + productSaleDto.getSalePrice() + '$'}"></p>
+        <p class="hours-left"
+           th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productSaleDto.getProductPhotoDto().getProduct().getDateExpired())}"
+           th:text="${duration.toHours() < 1
+                ? 'Остання година'
+                 : (duration.toDays() > 0
+                  ? 'Акція діє ще ' + duration.toDays() + ' дн. ' + (duration.toHours() % 24) + ' год.'
+                  : 'Акція діє ще ' + duration.toHours() + ' год.') }">
+        </p>
+
+        <div th:if="${admin}">
+            <form th:method="POST"
+                  th:action="@{/product/cancel-sale/{id}(id=${productSaleDto.getProductPhotoDto().getProduct().getId()})}">
+                <button type="submit" class="cancel-sale-btn">Скасувати знижку</button>
+            </form>
+        </div>
+
+        <!-- Назва і ціна продукту -->
+        <h2 th:text="${productSaleDto.getProductPhotoDto().getProduct().getTitle()}"></h2>
+
+        <!-- Кнопки для додавання в корзину і перегляду -->
+        <div class="product-footer">
+            <a class="details-btn"
+               th:href="@{/product/{id} (id=${productSaleDto.getProductPhotoDto().getProduct().getId()})}">Детальніше</a>
+            <form th:method="POST" th:action="@{/cart}" class="cart-btn">
+                <input type="hidden" name="productId"
+                       th:value="${productSaleDto.getProductPhotoDto().getProduct().getId()}">
+                <button type="submit">🛒</button>
+            </form>
+            <form th:method="POST" th:action="@{/wishlist/add}" class="cart-btn">
+                <input type="hidden" name="productId"
+                       th:value="${productSaleDto.getProductPhotoDto().getProduct().getId()}">
+                <button type="submit">❤️</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

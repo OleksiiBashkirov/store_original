@@ -4,7 +4,6 @@ import bashkirov.store_original.dto.OrderCartItemsDto;
 import bashkirov.store_original.enumeration.OrdersStatus;
 import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Orders;
-import bashkirov.store_original.model.Person;
 import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.OrderService;
 import jakarta.validation.Valid;
@@ -13,13 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -34,12 +27,7 @@ public class OrderController {
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
-        Person person = personDetails.person();
-        Orders order = new Orders();
-        order.setName(person.getName());
-        order.setLastname(person.getLastname());
-        order.setPhone(person.getPhone());
-        order.setDeliveryAddress(person.getAddress());
+        Orders order = orderService.getForOrderPersonDetails();
         model.addAttribute("orderNew", order);
 
         return "order/order-new-page";
@@ -55,8 +43,9 @@ public class OrderController {
             return "order/order-new-page";
         }
         orderService.createOrder(orderNew);
+        OrderCartItemsDto lastUserOrderWithCartItemsDto = orderService.getLastUserOrderWithCartItemsDto();
 
-        return "redirect:/product";
+        return "redirect:/order/" + lastUserOrderWithCartItemsDto.getOrder().getId();
     }
 
     @GetMapping
@@ -67,16 +56,6 @@ public class OrderController {
 
         return "order/user-orders";
     }
-
-//    @GetMapping("/user-orders")
-//    public String getUserOrdersByUserId(
-//            @RequestParam("userId") int userId,
-//            Model model
-//    ) {
-//        model.addAttribute("ordersHistoryByUser", orderService.getAllByUserId(userId));
-//
-//        return "order/user-orders";
-//    }
 
     @GetMapping("/{orderId}")
     public String getById(

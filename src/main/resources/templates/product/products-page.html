@@ -211,12 +211,63 @@
             font-weight: bold;
             font-size: 18px;
         }
+
+        .badge-sale {
+            position: marker;
+            top: 10px;
+            left: 10px;
+            background-color: transparent;
+            padding: 0;
+            border-radius: 5px;
+        }
+
+        .price {
+            font-size: 1rem;
+            text-decoration: line-through;
+            margin-bottom: 5px;
+        }
+
+        .sale-price {
+            color: red;
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .hours-left {
+            margin-top: -5px;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: red;
+        }
+
+        .priceNotSale {
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+
+        .add-sale-btn {
+            background-color: #ffc107;
+            color: black;
+            padding: 5px 10px;
+            font-size: 12px;
+            text-decoration: none;
+            border-radius: 3px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-sale-btn:hover {
+            background-color: #e0a800;
+            text-decoration: none;
+        }
     </style>
 </head>
 <body>
 <div class="header">
     <div class="button-group">
-        <!-- logout button -->
+
         <form th:method="GET" th:action="@{/auth/logout}" class="logout-btn">
             <input type="submit" value="Вийти">
         </form>
@@ -234,16 +285,19 @@
                 <input type="submit" value="Чат">
             </form>
         </div>
+        <div>
+            <form th:method="GET" th:action="@{/product/sales}" class="add-btn">
+                <input type="submit" value="Акції">
+            </form>
+        </div>
     </div>
 
-    <!-- Search Form -->
     <form th:method="GET" th:action="@{/product}" class="search-bar">
         <input type="text" name="key" th:value="${key}" placeholder="Я шукаю...">
         <button type="submit">
             <img src="https://w7.pngwing.com/pngs/456/948/png-transparent-computer-icons-desktop-web-search-engine-wordpress-com-search-icon-search-logo-website-circle-wordpresscom-thumbnail.png"
                  alt="Search">
         </button>
-
         <select name="categoryId" id="selectCategoryId">
             <option value="" th:selected="${categoryId == null}">Всі</option>
             <option th:each="category : ${categories}"
@@ -258,10 +312,10 @@
     <div class="icons-container">
         <!--        chat-->
         <div th:unless="${admin}">
-        <a th:href="@{/chat}">
-            <img src="https://w7.pngwing.com/pngs/941/403/png-transparent-chat-chatting-communication-conversation-email-mail-message-mobile-basic-icon.png"
-                 alt="Chat">
-        </a>
+            <a th:href="@{/chat}">
+                <img src="https://w7.pngwing.com/pngs/941/403/png-transparent-chat-chatting-communication-conversation-email-mail-message-mobile-basic-icon.png"
+                     alt="Chat">
+            </a>
         </div>
         <!--        wishlist-->
         <a th:href="@{/wishlist}">
@@ -284,14 +338,50 @@
 <!-- Product Grid -->
 <div class="product-grid">
     <div class="product" th:each="productPhotoDto : ${searchList}">
+        <div th:if="${productPhotoDto.getProduct().getSalePrice() != null
+                    and productPhotoDto.getProduct().getDateExpired().isAfter(T(java.time.LocalDateTime).now())}"
+             class="badge-sale">
+            <img src="https://w7.pngwing.com/pngs/180/150/png-transparent-computer-graphics-discounts-and-allowances-red-promotions-computer-graphics-text-hand-rectangle.png"
+                 alt="Акція" style="width: 50px; height: auto;">
+        </div>
+
         <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productPhotoDto.getProductPhoto().getUrl()})}"
              alt="Product Image">
 
-        <!-- Назва і ціна продукту -->
         <h2 th:text="${productPhotoDto.getProduct().getTitle()}"></h2>
-        <p class="price" th:text="${productPhotoDto.getProduct().getPrice() + '$'}"></p>
 
-        <!-- Кнопки для додавання в корзину і перегляду -->
+        <div th:if="${productPhotoDto.getProduct().getSalePrice() != null
+                    and productPhotoDto.getProduct().getDateExpired().isAfter(T(java.time.LocalDateTime).now())}">
+
+            <p class="price" th:text="${'Стара ціна: ' + productPhotoDto.getProduct().getPrice() + '$'}"></p>
+            <p class="sale-price" th:text="${'Знижка: ' + productPhotoDto.getProduct().getSalePrice() + '$'}"></p>
+
+            <p class="hours-left"
+               th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productPhotoDto.getProduct().getDateExpired())}"
+               th:text="${duration.toHours() < 1
+                ? 'Остання година'
+                 : (duration.toDays() > 0
+                  ? 'Акція діє ще ' + duration.toDays() + ' дн. ' + (duration.toHours() % 24) + ' год.'
+                  : 'Акція діє ще ' + duration.toHours() + ' год.') }">
+            </p>
+        </div>
+
+        <div th:unless="${productPhotoDto.getProduct().getSalePrice()!=null
+                    and productPhotoDto.getProduct().getDateExpired().isAfter(T(java.time.LocalDateTime).now())}">
+            <p class="priceNotSale" th:text="${productPhotoDto.getProduct().getPrice() + ' $'}"></p>
+            <div th:if="${admin}">
+                <a th:href="@{/product/sale/{id}(id=${productPhotoDto.getProduct().getId()})}" class="add-sale-btn">
+                    Додати знижку</a>
+            </div>
+        </div>
+
+        <div th:if="${productPhotoDto.getProduct().getCountLeft() != 0}">
+            <p>Є в наявності</p>
+        </div>
+        <div th:if="${productPhotoDto.getProduct().getCountLeft() == 0}">
+            <p style="color: red">Закінчився товар</p>
+        </div>
+
         <div class="product-footer">
             <a class="details-btn"
                th:href="@{/product/{id} (id=${productPhotoDto.getProduct().getId()})}">Детальніше</a>

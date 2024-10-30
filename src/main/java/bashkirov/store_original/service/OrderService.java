@@ -7,6 +7,7 @@ import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.model.Person;
 import bashkirov.store_original.model.Product;
 import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
@@ -40,6 +41,11 @@ public class OrderService {
         List<CartItem> cartItemList = cartItemService.getAllByOrderId(orderId);
 
         return new OrderCartItemsDto(order, cartItemList);
+    }
+
+    public OrderCartItemsDto getLastUserOrderWithCartItemsDto(){
+        List<OrderCartItemsDto> allByUser = getAllByUser();
+        return allByUser.getFirst();
     }
 
     public List<Orders> getAllByStatus(OrdersStatus status) {
@@ -205,5 +211,16 @@ public class OrderService {
             order.setPhone(rs.getString("phone"));
             return order;
         };
+    }
+
+    @NotNull
+    public  Orders getForOrderPersonDetails() {
+        Person person = personDetailsService.getCurrentUser();
+        Orders order = new Orders();
+        order.setName(person.getName());
+        order.setLastname(person.getLastname());
+        order.setPhone(person.getPhone());
+        order.setDeliveryAddress(person.getAddress());
+        return order;
     }
 }

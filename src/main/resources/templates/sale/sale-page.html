@@ -2,13 +2,145 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>sale-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        .product-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .product-info img {
+            max-width: 200px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .product-title {
+            font-size: 1.5rem;
+            color: #333;
+        }
+
+        .product-price {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+        .in-stock {
+            color: green;
+            font-weight: bold;
+        }
+
+        .out-of-stock {
+            color: red;
+            font-weight: bold;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 1rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 100%;
+        }
+
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
 </head>
 <body>
-<p>sale-page</p>
+<div class="container">
+    <h1>Додати знижку</h1>
 
-<div>
+    <div class="product-info" th:if="${productSaleDto.getProductPhotoDto() != null}">
+        <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productSaleDto.getProductPhotoDto().getProductPhoto().getUrl().toString()})}" alt="Product Photo">
 
+        <div class="product-title" th:text="${productSaleDto.getProductPhotoDto().getProduct().getTitle()}"></div>
+        <div class="product-price" th:text="${'Ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice()} + '$'"></div>
+        <div class="in-stock" th:text="${'Залишилось на складі: ' + productSaleDto.getProductPhotoDto().getProduct().getCountLeft()}"></div>
+        <div th:if="${productSaleDto.getProductPhotoDto().getProduct().getCountLeft() == 0}" class="out-of-stock"
+             th:text="${'Товар закінчився'}"></div>
+    </div>
+
+    <form th:method="PUT"
+          th:action="@{/product/sale/{id}(id=${product.getId()})}"
+          th:object="${productSaleDto}">
+        <!-- Hidden поля для передачі інформації про продукт -->
+        <input type="hidden" th:field="*{productPhotoDto.product.id}">
+        <input type="hidden" th:field="*{productPhotoDto.product.title}">
+        <input type="hidden" th:field="*{productPhotoDto.product.price}">
+        <input type="hidden" th:field="*{productPhotoDto.product.article}">
+        <input type="hidden" th:field="*{productPhotoDto.product.countLeft}">
+        <input type="hidden" th:field="*{productPhotoDto.product.description}">
+        <input type="hidden" th:field="*{productPhotoDto.product.categoryId}">
+        <input type="hidden" th:field="*{productPhotoDto.product.salePrice}">
+        <input type="hidden" th:field="*{productPhotoDto.product.dateExpired}">
+        <input type="hidden" th:field="*{productPhotoDto.productPhoto.id}">
+        <input type="hidden" th:field="*{productPhotoDto.productPhoto.name}">
+        <input type="hidden" th:field="*{productPhotoDto.productPhoto.url}">
+<!--        <input type="hidden" th:field="*{productPhotoDto.productPhoto.isPrimary()}">-->
+
+        <div>
+            <label for="salePriceId">Ціна зі знижкою:</label>
+            <input type="number" id="salePriceId" th:field="*{salePrice}" step="0.01" required>
+        </div>
+
+        <div>
+            <label for="hoursId">Тривалість знижки (години):</label>
+            <input type="number" id="hoursId" th:field="*{hours}" min="1" required>
+        </div>
+
+        <button type="submit"> Додати знижку</button>
+    </form>
 </div>
 
 </body>

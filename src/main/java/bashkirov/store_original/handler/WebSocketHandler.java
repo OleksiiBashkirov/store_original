@@ -29,7 +29,7 @@ public class WebSocketHandler extends TextWebSocketHandler {
     @Override
     protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
         if (getRole(session).equals(Role.ROLE_USER) && adminSession != null) {
-            adminSession.sendMessage(new TextMessage("User: "  + session.getId() + ", " + message.getPayload()));
+            adminSession.sendMessage(new TextMessage("User: "  + session.getId() + ", message: " + message.getPayload()));
         } else if (getRole(session).equals(Role.ROLE_ADMIN)) {
             String[] strings = message.getPayload().split(":");
             String userId = strings[0];
@@ -40,10 +40,6 @@ public class WebSocketHandler extends TextWebSocketHandler {
             }
         }
     }
-
-
-
-
 
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
@@ -57,5 +53,4 @@ public class WebSocketHandler extends TextWebSocketHandler {
         String uri = session.getUri().toString();
         return uri.contains("admin") ? Role.ROLE_ADMIN : Role.ROLE_USER;
     }
-
 }

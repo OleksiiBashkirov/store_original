@@ -8,7 +8,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -34,8 +33,7 @@ public class Product {
 
     private int categoryId;
 
-
-    private BigDecimal salePrice;
+    private Double salePrice;
 
     private LocalDateTime dateExpired;
 }
