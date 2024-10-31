@@ -13,13 +13,12 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 50px auto;
             background-color: #ffffff;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         h1 {
@@ -31,9 +30,8 @@
         }
 
         .btn-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
+            text-align: left;
+            margin-top: 10px;
         }
 
         .btn-return {
@@ -112,13 +110,27 @@
         .pay-button:hover {
             background-color: #218838;
         }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <!-- Кнопка Назад -->
     <div class="btn-container">
-        <a th:href="@{/order}" class="btn-return">Назад</a>
+        <a th:href="@{/order}" class="btn-return">Повернутись</a>
     </div>
 
     <h1>Деталі замовлення</h1>
@@ -148,24 +160,31 @@
             <td th:text="${orderByIdWithCartItemsList.getOrder().getName()}"></td>
             <td th:text="${orderByIdWithCartItemsList.getOrder().getLastname()}"></td>
             <td th:text="${orderByIdWithCartItemsList.getOrder().getPhone()}"></td>
-
         </tr>
         </tbody>
     </table>
 
-    <h2>Продукти в Замовленні</h2>
+    <h2 style="text-align: center">Продукти в Замовленні</h2>
     <table>
         <thead>
         <tr>
             <th>ID Продукту</th>
             <th>Кількість</th>
+            <th>Дія</th>
         </tr>
         </thead>
         <tbody>
         <tr th:if="${orderByIdWithCartItemsList.getCartItems() != null}"
             th:each="item : ${orderByIdWithCartItemsList.getCartItems()}">
+
             <td th:text="${item.getProductId()}"></td>
             <td th:text="${item.getQuantity()}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/product/{id}(id=${item.getProductId()})}">
+                    <input type="submit" value="Перейти">
+                </form>
+            </td>
+
         </tr>
         </tbody>
     </table>

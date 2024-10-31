@@ -13,9 +13,11 @@ public class EmailService {
 
     public void sendEmail(EmailDto emailDto) {
         SimpleMailMessage message = new SimpleMailMessage();
+
         message.setTo(emailDto.getEmail());
         message.setSubject(emailDto.getSubject());
         message.setText(emailDto.getText());
+
         javaMailSender.send(message);
     }
 }

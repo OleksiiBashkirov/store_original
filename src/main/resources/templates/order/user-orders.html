@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>all</title>
+    <title>user-orders</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f0f0;
             margin: 0;
-            padding: 0;
+            /*padding: 0;*/
+            padding: 20px;
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 50px auto;
             background-color: #ffffff;
             padding: 30px;
             border-radius: 8px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            /*position: relative;*/
         }
 
         h1 {
             text-align: center;
             color: #333;
             margin-bottom: 30px;
+            font-size: 28px;
+            letter-spacing: 1px;
         }
 
         .btn-container {
             text-align: left;
             margin-bottom: 20px;
+            /*position: absolute;*/
+            /*top: 10px;*/
+            /*left: 10px;*/
         }
 
         .btn-return {
@@ -42,6 +49,7 @@
             border: none;
             border-radius: 8px;
             cursor: pointer;
+            text-decoration: none;
             transition: background-color 0.3s ease, transform 0.2s ease;
         }
 
@@ -73,6 +81,7 @@
             font-weight: 500;
         }
 
+
         tr:hover {
             background-color: #e6f2ff;
             transform: scale(1.01);
@@ -85,6 +94,20 @@
 
         tbody tr:hover {
             background-color: #d0e9ff;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
         }
     </style>
 </head>
@@ -101,9 +124,10 @@
     <table>
         <thead>
         <tr>
-            <td>ID</td>
-            <td>Дата створення</td>
-            <td>Статус</td>
+            <th>ID</th>
+            <th>Дата створення</th>
+            <th>Статус</th>
+            <th>Дія</th>
             <!--            <td>Загальна сума</td>-->
         </tr>
         </thead>
@@ -113,6 +137,11 @@
             <td th:text="${orderCartItemDto.getOrder().getId()}"></td>
             <td th:text="${orderCartItemDto.getOrder().getCreatedAt()}"></td>
             <td th:text="${orderCartItemDto.getOrder().getOrdersStatus().toString()}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/order/{id}(id=${orderCartItemDto.getOrder().getId()})}">
+                    <input type="submit" value="Перейти">
+                </form>
+            </td>
             <!--        <td th:text="${orderCartItemDto.getOrder().getTotalAmount() + ' $'}"></td>-->
         </tr>
         </tbody>

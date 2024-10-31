@@ -53,7 +53,7 @@ public class PersonDetailsService implements UserDetailsService {
 
     public List<Person> getAllAdmins() {
         return jdbcTemplate.query(
-                "select * from person where role = ?",
+                "select * from person where role = ? order by id",
                 new Object[]{Role.ROLE_ADMIN.toString()},
                 new BeanPropertyRowMapper<>(Person.class)
         );
@@ -69,7 +69,7 @@ public class PersonDetailsService implements UserDetailsService {
 
     public List<Person> getAllUsers() {
         return jdbcTemplate.query(
-                "select * from person where role = ?",
+                "select * from person where role = ? order by id",
                 new Object[]{Role.ROLE_USER.toString()},
                 new BeanPropertyRowMapper<>(Person.class)
         );

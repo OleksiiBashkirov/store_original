@@ -13,7 +13,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class TelegramUserService {
     private final JdbcTemplate jdbcTemplate;
-    //дістати за чатАйді, зберегти, видалити, дістати всіх
 
     public Optional<TelegramUser> getByChatId(long chatId) {
         return jdbcTemplate.query(
@@ -33,7 +32,7 @@ public class TelegramUserService {
 
     public List<TelegramUser> getAll() {
         return jdbcTemplate.query(
-                "select * from telegram_user order by id",
+                "select * from telegram_user order by id desc",
                 new BeanPropertyRowMapper<>(TelegramUser.class)
         );
     }
@@ -44,7 +43,6 @@ public class TelegramUserService {
                 telegramUser.getChatId(),
                 telegramUser.getUsername(),
                 telegramUser.getPhone(),
-                telegramUser.getPhone(),
                 telegramUser.getName(),
                 telegramUser.getLastname()
         );
@@ -54,6 +52,14 @@ public class TelegramUserService {
         jdbcTemplate.update(
                 "delete from telegram_user where id = ?",
                 id
+        );
+    }
+
+    public void addTelegramUserPhoneNumberByChatId(long chatId, String phone) {
+        jdbcTemplate.update(
+                "update telegram_user set phone = ? where chat_id = ?",
+                phone,
+                chatId
         );
     }
 }

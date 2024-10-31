@@ -1,7 +1,11 @@
 package bashkirov.store_original.service;
 
 import bashkirov.store_original.config.BotConfig;
+import bashkirov.store_original.dto.EmailDto;
 import bashkirov.store_original.dto.ProductPhotoDto;
+import bashkirov.store_original.model.TelegramCorrespondence;
+import bashkirov.store_original.model.TelegramUser;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.ActionType;
@@ -13,7 +17,9 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.Keyboard
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -22,58 +28,72 @@ public class TelegramBot extends TelegramLongPollingBot {
             "Акційні пропозиції",
             "Про нас",
             "Пошук",
-            "Потрібна допомога"
-//            "Замовити дзвінок"
+            "Потрібна допомога",
+            "Замовити дзвінок"  // закоментувати
     );
 
     private final BotConfig botConfig;
     private final ProductService productService;
     private final TelegramUserService telegramUserService;
+    private final JdbcTemplate jdbcTemplate;
+    private final EmailService emailService;
+    private final OrderPhoneCallService orderPhoneCallService;
+    private final TelegramCorrespondenceService telegramCorrespondenceService;
 
-    public TelegramBot(BotConfig botConfig, ProductService productService, TelegramUserService telegramUserService) {
+    public TelegramBot(
+            BotConfig botConfig,
+            ProductService productService,
+            TelegramUserService telegramUserService,
+            JdbcTemplate jdbcTemplate,
+            EmailService emailService, OrderPhoneCallService orderPhoneCallService, TelegramCorrespondenceService telegramCorrespondenceService
+    ) {
         super(botConfig.getToken());
         this.botConfig = botConfig;
         this.productService = productService;
         this.telegramUserService = telegramUserService;
+        this.jdbcTemplate = jdbcTemplate;
+        this.emailService = emailService;
+        this.orderPhoneCallService = orderPhoneCallService;
+        this.telegramCorrespondenceService = telegramCorrespondenceService;
     }
 
     @Override
     public void onUpdateReceived(Update update) {
         long chatId = update.getMessage().getChatId();
 
-//        if (telegramUserService.getByChatId(chatId).isEmpty()) {
-//            TelegramUser telegramUser = new TelegramUser();
-//
-//            telegramUser.setChatId(chatId);
-//            telegramUser.setUsername(update.getMessage().getChat().getUserName());
-//            telegramUser.setPhone(update.getMessage().getContact().getPhoneNumber());
-//            telegramUser.setName(update.getMessage().getChat().getFirstName());
-//            telegramUser.setName(update.getMessage().getChat().getLastName());
-//
-//            telegramUserService.save(telegramUser);
-//        }
+        if (telegramUserService.getByChatId(chatId).isEmpty()) {
+            TelegramUser telegramUser = new TelegramUser();
 
+            telegramUser.setChatId(chatId);
+            telegramUser.setUsername(update.getMessage().getChat().getUserName());
+            if (update.getMessage().hasContact()) {
+                telegramUser.setPhone(update.getMessage().getContact().getPhoneNumber());
+            }
+            telegramUser.setName(update.getMessage().getChat().getFirstName());
+            telegramUser.setLastname(update.getMessage().getChat().getLastName());
 
-        if (update.getMessage().hasText()) {
-            sendChatAction(chatId, ActionType.TYPING);
-            String message = update.getMessage().getText();
-            System.out.println("message= " + message);
-            textMessageHandler(message, chatId);
+            telegramUserService.save(telegramUser);
+        }
+
+        if (update.getMessage().hasContact()) {
+            telegramUserService.addTelegramUserPhoneNumberByChatId(chatId, update.getMessage().getContact().getPhoneNumber());
+            orderPhoneCall(chatId);
+        } else if (update.getMessage().hasText()) {
+            String message = update.getMessage().getText().trim();
+            if (message.equalsIgnoreCase("замовити дзвінок")) {
+                orderPhoneCall(chatId);
+            } else {
+                telegramCorrespondenceService.save(
+                        new TelegramCorrespondence(
+                                chatId, false, update.getMessage().getText(), LocalDateTime.now()
+                        ));
+                sendChatAction(chatId, ActionType.TYPING);
+                System.out.println("message= " + message);
+                textMessageHandler(message, chatId);
+            }
         }
     }
 
-    /*
-        private void textMessageHandler(String message, long chatId) {
-            switch (message) {
-                case "/start", "Головне меню" -> onStart(chatId);
-                case "Акційні пропозиції" -> sendMarkdownMessage(
-                        chatId,
-                        productService.getFirstFiveRandomProductSaleDto()
-    //                    DEFAULT_BUTTONS
-                );
-            }
-        }
-      */
     private void textMessageHandler(String message, long chatId) {
         switch (message.trim().toLowerCase()) {
             case "/start", "головне меню" -> onStart(chatId);
@@ -96,9 +116,9 @@ public class TelegramBot extends TelegramLongPollingBot {
                     getHelpInfo(),
                     DEFAULT_BUTTONS
             );
-//            case "замовити дзвінок" -> orderPhoneCall(
-//                    chatId
-//            );
+            case "замовити дзвінок" -> orderPhoneCall(
+                    chatId
+            );
             default -> handleSearchQuery(message, chatId);
         }
     }
@@ -120,6 +140,23 @@ public class TelegramBot extends TelegramLongPollingBot {
         }
     }
 
+    public void sendMessageToUserByAdmin(long chatId, String message) {
+        sendMessageWithButtons(chatId, message, DEFAULT_BUTTONS);
+    }
+
+    public void sendMessageToAllUsersByAdmin(String message) {
+        List<TelegramUser> all = telegramUserService.getAll();
+        for (TelegramUser telegramUser : all) {
+            sendMessageToUserByAdmin(telegramUser.getChatId(), message);
+            telegramCorrespondenceService.save(new TelegramCorrespondence(
+                    telegramUser.getChatId(),
+                    true,
+                    message,
+                    LocalDateTime.now()
+            ));
+        }
+    }
+
     private void sendMessageWithButtons(long chatId, String message, List<String> buttons) {
         ReplyKeyboardMarkup replyKeyboardMarkup = getButtons(buttons);
         SendMessage sendMessage = new SendMessage();
@@ -132,23 +169,44 @@ public class TelegramBot extends TelegramLongPollingBot {
             System.out.println("Не вдалось відправити повідомлення з кнопками");
         }
     }
-/*
-    private void orderPhoneCall(long chatId) {
-        TelegramUser byChatId = telegramUserService.getByChatId(chatId).get();
-        if (byChatId.getPhone() != null) {
-            // TODO зробити таблицю із заказами для дзвінків ->
-            //  адмін має сторінку з цими дзвінками ->
-            //  на пошту має приходити, що дзвінок замовлено
 
+    private void orderPhoneCall(long chatId) {
+        TelegramUser telegramUser = telegramUserService.getByChatId(chatId).orElseThrow();
+
+        if (telegramUser.getPhone() != null) {
+            saveOrderPhoneCall(telegramUser);
             sendMessageWithButtons(
                     chatId,
-                    "Очікуйте дзвінок протягом 2 хвилин",
+                    "Дзвінок замовлено. Вам перетелефонують протягом 2 хвилин",
                     DEFAULT_BUTTONS);
-            return;
+            sendOrderNotificationEmail(telegramUser);
+        } else {
+            requestPhoneNumber(chatId);
+            // ТУТ потрібно ловити номер телефона, який надішлють
+            // І зберігати його телеграмЮзеру
         }
+    }
 
-        String buttonText = "Введіть номер телефону";
+    private void saveOrderPhoneCall(TelegramUser telegramUser) {
+        orderPhoneCallService.save(telegramUser);
+    }
+
+    private void sendOrderNotificationEmail(TelegramUser telegramUser) {
+        EmailDto emailDto = new EmailDto(
+                "bashkirov.o.u@gmail.com",
+                "BashkirovShopBot. Нове замовлення дзвінка.",
+                "Замовлено дзвінок від користувача: " + telegramUser.getUsername()
+                        + ".\n Телефон: " + telegramUser.getPhone()
+                        + ", " + telegramUser.getName() + " " + telegramUser.getLastname()
+        );
+        emailService.sendEmail(emailDto);
+    }
+
+    private void requestPhoneNumber(long chatId) {
+        String buttonText = "Надати свій номер телефону ";
+
         SendMessage sendMessage = new SendMessage();
+        sendMessage.setText("Введіть номером телефону у форматі 38ХХХХХХХХХХ, щоб ми могли з Вами зв'язатись:");
         sendMessage.setChatId(chatId);
         sendMessage.setReplyMarkup(getButtonWithRequiredContact(buttonText));
         try {
@@ -171,7 +229,8 @@ public class TelegramBot extends TelegramLongPollingBot {
 
         return replyKeyboardMarkup;
     }
-*/
+
+
     private void onStart(long chatId) {
         String message = """
                 Вітаємо Вас в BashkirovShopBot!
@@ -263,7 +322,4 @@ public class TelegramBot extends TelegramLongPollingBot {
                             Ми завжди раді допомогти вам з будь-якими питаннями!
                 """;
     }
-
-    //акційні товари, пошук товарів, потрібна допомога
-
 }

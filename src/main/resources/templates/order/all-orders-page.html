@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>orders-page</title>
+    <title>all-orders-page</title>
 
     <style>
         body {
@@ -14,7 +14,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 50px auto;
             background-color: #ffffff;
             padding: 30px;
@@ -139,7 +139,19 @@
             transform: scale(1.05);
         }
 
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
 
+        input[type="submit"]:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -185,6 +197,7 @@
             <th>Ім'я</th>
             <th>Прізвище</th>
             <th>Телефон</th>
+            <th>Дія</th>
         </tr>
         </thead>
         <tbody>
@@ -196,6 +209,11 @@
             <td th:text="${order.getName()}"></td>
             <td th:text="${order.getLastname()}"></td>
             <td th:text="${order.getPhone()}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/order/admin/{id}(id=${order.getId()})}">
+                    <input type="submit" value="Перейти">
+                </form>
+            </td>
         </tr>
         </tbody>
     </table>

@@ -13,7 +13,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 50px auto;
             background-color: #ffffff;
             padding: 30px;
@@ -149,6 +149,33 @@
         </tr>
         </tbody>
     </table>
+
+    <h2>Продукти в Замовленні</h2>
+    <table>
+        <thead>
+        <tr>
+            <th>ID Продукту</th>
+            <th>Кількість</th>
+            <th>Дія</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${orderByIdWithCartItemsList.getCartItems() != null}"
+            th:each="item : ${orderByIdWithCartItemsList.getCartItems()}">
+
+            <td th:text="${item.getProductId()}"></td>
+            <td th:text="${item.getQuantity()}"></td>
+            <td>
+                <form th:method="GET" th:action="@{/product/{id}(id=${item.getProductId()})}">
+                    <input type="submit" value="Перейти">
+                </form>
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+
+
     <form th:method="GET" th:action="@{/email}">
         <input type="hidden" name="orderId" th:value="${orderId}">
         <label for="textId">Повідомлення:</label>

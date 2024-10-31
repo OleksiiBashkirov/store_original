@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>telegram-user-page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+        }
+
+        .btn-container {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        .btn-return:active {
+            transform: scale(0.98);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+
+        .conversation-table th {
+            background-color: #6c757d;
+        }
+
+        tr:hover {
+            background-color: #e6f2ff;
+            transition: all 0.2s ease;
+        }
+
+        .message-form textarea {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 16px;
+            border-radius: 6px;
+            border: 1px solid #cce7ff;
+            resize: vertical;
+        }
+
+        .message-form input[type="submit"] {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .message-form input[type="submit"]:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .message-form input[type="submit"]:active {
+            transform: scale(0.98);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn-container">
+        <form th:method="GET" th:action="@{/telegram}">
+            <input type="submit" class="btn-return" value="На сторінку всіх телеграм користувачів">
+        </form>
+    </div>
+
+    <h1>Сторінка TELEGRAM користувача</h1>
+    <table>
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Чат ID</th>
+            <th>Username</th>
+            <th>Телефон</th>
+            <th>Ім'я</th>
+            <th>Прізвище</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:object="${telegramUserByChatId}">
+            <td th:text="${telegramUserByChatId.getId()}"></td>
+            <td th:text="${telegramUserByChatId.getChatId()}"></td>
+            <td th:text="${telegramUserByChatId.getUsername()}"></td>
+            <td th:text="${telegramUserByChatId.getPhone()}"></td>
+            <td th:text="${telegramUserByChatId.getName()}"></td>
+            <td th:text="${telegramUserByChatId.getLastname()}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <h2>Переписка користувача: </h2>
+
+    <table class="conversation-table">
+        <thead>
+        <tr>
+            <th>Відправник</th>
+            <th>Повідомлення</th>
+            <th>Дата і час</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:unless="${allCorrespondenceByChatId.isEmpty()}"
+            th:each="telegramCorrespondence : ${allCorrespondenceByChatId}">
+            <td th:text="${telegramCorrespondence.isAdmin() ? 'admin' : 'user'}"></td>
+            <td th:text="${telegramCorrespondence.getMessage()}"></td>
+            <td th:text="${telegramCorrespondence.getLocalDateTime().toString()}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <form class="message-form"
+          th:method="POST"
+          th:action="@{/telegram/send-message-to-user}">
+
+        <textarea name="message" placeholder="Введіть сюди повідомлення..."></textarea>
+        <input type="hidden" name="chatId" th:value="${telegramUserByChatId.getChatId()}">
+        <input type="submit" value="Відправити повідомлення">
+    </form>
+</div>
+
+</body>
+</html>

@@ -141,7 +141,7 @@
 
     <div class="btn-container">
         <form method="GET" th:action="@{/order/all-orders}">
-            <button type="submit" class="btn">Всі замолення</button>
+            <button type="submit" class="btn">Всі замовлення</button>
         </form>
         <form method="GET" th:action="@{/admin/users}">
             <button type="submit" class="btn">Всі користувачі</button>
@@ -152,6 +152,14 @@
         <form action="GET" th:action="@{/category}">
             <button type="submit" class="btn">Всі категорії</button>
         </form>
+        <form th:method="GET" th:action="@{/admin/order-phone-calls}">
+            <button type="submit" class="btn">Замовлення дзвінків</button>
+        </form>
+        <form th:method="GET" th:action="@{/telegram}">
+            <button type="submit" class="btn">Telegram користувачі</button>
+        </form>
+
+
     </div>
 
     <h2>Список адміністраторів</h2>

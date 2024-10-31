@@ -1,15 +1,12 @@
 package bashkirov.store_original.controller;
 
 import bashkirov.store_original.model.Person;
+import bashkirov.store_original.service.OrderPhoneCallService;
 import bashkirov.store_original.service.PersonDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -18,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminController {
     private final PersonDetailsService personDetailsService;
+    private final OrderPhoneCallService orderPhoneCallService;
 
     @GetMapping
     public String adminPage(
@@ -39,7 +37,7 @@ public class AdminController {
     ) {
         List<Person> usersList = personDetailsService.getAllUsers();
         model.addAttribute("usersList", usersList);
-        return "admin/users-list-page";
+        return "admin/list-of-all-users";
 
     }
 
@@ -57,5 +55,31 @@ public class AdminController {
     ) {
         personDetailsService.removeAdmin(personId);
         return "redirect:/admin/users";
+    }
+
+    @GetMapping("/order-phone-calls")
+    public String showOrderPhoneCallsPage(
+            Model model
+    ) {
+        model.addAttribute("orderPhoneCalls", orderPhoneCallService.getAllPhoneOrders());
+        return "admin/order-phone-call-page";
+    }
+
+    @PutMapping("/order-phone-calls")
+    public String updatePhoneCall(
+            @RequestParam("id") int id,
+            Model model
+    ) {
+        model.addAttribute("phoneCallById", orderPhoneCallService.getById(id));
+        orderPhoneCallService.update(id, true);
+        return "redirect:/admin/order-phone-calls";
+    }
+
+    @DeleteMapping("/order-phone-calls")
+    public String deletePhoneCall(
+            @RequestParam("id") int id
+    ) {
+        orderPhoneCallService.deleteById(id);
+        return "redirect:/admin/order-phone-calls";
     }
 }

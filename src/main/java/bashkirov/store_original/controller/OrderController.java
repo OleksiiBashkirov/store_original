@@ -6,6 +6,7 @@ import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Orders;
 import bashkirov.store_original.security.PersonDetails;
 import bashkirov.store_original.service.OrderService;
+import bashkirov.store_original.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -21,6 +22,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
     private final OrderService orderService;
+    private final ProductService productService;
 
     @GetMapping("/new")
     public String orderNewPage(
