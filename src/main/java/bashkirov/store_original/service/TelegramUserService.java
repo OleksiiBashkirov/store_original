@@ -55,6 +55,13 @@ public class TelegramUserService {
         );
     }
 
+    public void deleteByChatId(long chatId) {
+        jdbcTemplate.update(
+                "delete from telegram_user where chat_id = ?",
+                chatId
+        );
+    }
+
     public void addTelegramUserPhoneNumberByChatId(long chatId, String phone) {
         jdbcTemplate.update(
                 "update telegram_user set phone = ? where chat_id = ?",

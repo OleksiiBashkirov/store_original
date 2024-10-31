@@ -166,7 +166,8 @@ public class TelegramBot extends TelegramLongPollingBot {
         try {
             execute(sendMessage);
         } catch (TelegramApiException e) {
-            System.out.println("Не вдалось відправити повідомлення з кнопками");
+            System.out.println("Не вдалося відправити повідомлення користувачу " + chatId + ". Ймовірно, користувач видалив бота.");
+            telegramUserService.deleteByChatId(chatId);
         }
     }
 
