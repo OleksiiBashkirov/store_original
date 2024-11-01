@@ -39,13 +39,14 @@ public class TelegramBot extends TelegramLongPollingBot {
     private final EmailService emailService;
     private final OrderPhoneCallService orderPhoneCallService;
     private final TelegramCorrespondenceService telegramCorrespondenceService;
+    private final ChatGptService chatGptService;
 
     public TelegramBot(
             BotConfig botConfig,
             ProductService productService,
             TelegramUserService telegramUserService,
             JdbcTemplate jdbcTemplate,
-            EmailService emailService, OrderPhoneCallService orderPhoneCallService, TelegramCorrespondenceService telegramCorrespondenceService
+            EmailService emailService, OrderPhoneCallService orderPhoneCallService, TelegramCorrespondenceService telegramCorrespondenceService, ChatGptService chatGptService
     ) {
         super(botConfig.getToken());
         this.botConfig = botConfig;
@@ -55,6 +56,7 @@ public class TelegramBot extends TelegramLongPollingBot {
         this.emailService = emailService;
         this.orderPhoneCallService = orderPhoneCallService;
         this.telegramCorrespondenceService = telegramCorrespondenceService;
+        this.chatGptService = chatGptService;
     }
 
     @Override
@@ -80,6 +82,8 @@ public class TelegramBot extends TelegramLongPollingBot {
             orderPhoneCall(chatId);
         } else if (update.getMessage().hasText()) {
             String message = update.getMessage().getText().trim();
+            sendMessage(chatId, chatGptService.chatGpt(message,""));
+
             if (message.equalsIgnoreCase("замовити дзвінок")) {
                 orderPhoneCall(chatId);
             } else {
@@ -92,6 +96,7 @@ public class TelegramBot extends TelegramLongPollingBot {
                 textMessageHandler(message, chatId);
             }
         }
+
     }
 
     private void textMessageHandler(String message, long chatId) {

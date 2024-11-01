@@ -5,6 +5,7 @@ import bashkirov.store_original.dto.ProductPhotosDto;
 import bashkirov.store_original.dto.ProductSaleDto;
 import bashkirov.store_original.model.Product;
 import bashkirov.store_original.model.ProductPhoto;
+import bashkirov.store_original.model.PromoCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -28,6 +29,7 @@ public class ProductService {
 
     private final JdbcTemplate jdbcTemplate;
     private final PhotoService photoService;
+    private final PromoCodeService promoCodeService;
 
     public String generateArticle() {
         StringBuilder sb = null;
@@ -374,6 +376,19 @@ public class ProductService {
         for (Product product : products) {
             cancelSaleProduct(product.getId());
         }
+    }
+
+    public Double applyPromoCode(Product product, String code) {
+        Optional<PromoCode> promoCodeOpt = promoCodeService.getValidPromoCode(code);
+
+        if (promoCodeOpt.isPresent()) {
+            PromoCode promoCode = promoCodeOpt.get();
+            double discount = promoCode.isPercentage() ?
+                    (product.getPrice() * (promoCode.getDiscount() / 100)) :
+                    promoCode.getDiscount();
+            return Math.max(1, product.getPrice() - discount);
+        }
+        return product.getPrice();
     }
 
     private ProductPhotoDto getProductPhotoDtoByProductId(int productId) {

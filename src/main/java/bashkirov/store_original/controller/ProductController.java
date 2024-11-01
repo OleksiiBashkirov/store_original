@@ -32,6 +32,7 @@ public class ProductController {
     private final CartItemService cartItemService;
     private final CommentService commentService;
     private final ProductSaleValidator productSaleValidator;
+    private final PromoCodeService promoCodeService;
 
     @GetMapping()
     public String search(
@@ -76,6 +77,7 @@ public class ProductController {
     @GetMapping("/{id}")
     public String getById(
             @PathVariable("id") int id,
+            @RequestParam(required = false, name = "promoCode") String promoCode,
             Model model,
             @AuthenticationPrincipal PersonDetails personDetails
     ) {
@@ -84,10 +86,21 @@ public class ProductController {
         model.addAttribute("admin", isAdmin);
 
         Product product = productService.getById(id);
+        double promoPrice = productService.applyPromoCode(product, promoCode);
+
         Optional<ProductSaleDto> productSaleDto = productService.getOptionalProductSaleDto(product.getId());
         model.addAttribute("product", product);
+
         model.addAttribute("hasProductSaleDto", productSaleDto.isPresent());
-        model.addAttribute("productSaleDto", productSaleDto.orElse(null));
+
+        if (productSaleDto.isPresent()) {
+            model.addAttribute("productSaleDto", productSaleDto.get());
+        } else {
+            model.addAttribute("productSaleDto", false);
+            model.addAttribute("promoPrice", promoPrice);
+            model.addAttribute("promoCode", promoCode != null ? promoCode : "");
+        }
+
         model.addAttribute("actualPrice", productService.getActualPrice(product));
 
         if (personDetails != null) {
@@ -227,7 +240,7 @@ public class ProductController {
     ) {
         Product product = productService.getById(productId);
         ProductPhotoDto productPhotoDtoById = new ProductPhotoDto(product, photoService.getPrimaryPhotoByProductId(product.getId()));
-        ProductSaleDto productSaleDto = new ProductSaleDto(productPhotoDtoById, product.getPrice(),1);
+        ProductSaleDto productSaleDto = new ProductSaleDto(productPhotoDtoById, product.getPrice(), 1);
 
         model.addAttribute("product", product);
         model.addAttribute("productPhotoDto", productPhotoDtoById);

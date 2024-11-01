@@ -187,8 +187,8 @@
              alt="Product Image">
 
         <p class="price" style="text-decoration: line-through;"
-           th:text="${'Стара ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice() + '$'}"></p>
-        <p class="sale-price" th:text="${'Нова ціна: ' + productSaleDto.getSalePrice() + '$'}"></p>
+           th:text="${'Стара ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice() + '₴'}"></p>
+        <p class="sale-price" th:text="${'Нова ціна: ' + productSaleDto.getSalePrice() + '₴'}"></p>
         <p class="hours-left"
            th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productSaleDto.getProductPhotoDto().getProduct().getDateExpired())}"
            th:text="${duration.toHours() < 1

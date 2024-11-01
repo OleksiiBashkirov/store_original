@@ -28,7 +28,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CartItemService {
     private static final Person DEFAULT_USER = new Person(
-            0, // Default ID
+            6, // Default ID
             "Anonymous", // Default name
             "User", // Default lastname
             "00000, Unknown, Anonymous Street", // Default address

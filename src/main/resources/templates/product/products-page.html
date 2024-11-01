@@ -290,6 +290,11 @@
                 <input type="submit" value="Акції">
             </form>
         </div>
+        <div>
+            <form th:method="GET" th:action="@{/promocode}" class="add-btn">
+                <input type="submit" value="Промокоди">
+            </form>
+        </div>
     </div>
 
     <form th:method="GET" th:action="@{/product}" class="search-bar">
@@ -353,8 +358,8 @@
         <div th:if="${productPhotoDto.getProduct().getSalePrice() != null
                     and productPhotoDto.getProduct().getDateExpired().isAfter(T(java.time.LocalDateTime).now())}">
 
-            <p class="price" th:text="${'Стара ціна: ' + productPhotoDto.getProduct().getPrice() + '$'}"></p>
-            <p class="sale-price" th:text="${'Знижка: ' + productPhotoDto.getProduct().getSalePrice() + '$'}"></p>
+            <p class="price" th:text="${'Стара ціна: ' + productPhotoDto.getProduct().getPrice() + '₴'}"></p>
+            <p class="sale-price" th:text="${'Знижка: ' + productPhotoDto.getProduct().getSalePrice() + '₴'}"></p>
 
             <p class="hours-left"
                th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productPhotoDto.getProduct().getDateExpired())}"
@@ -368,7 +373,7 @@
 
         <div th:unless="${productPhotoDto.getProduct().getSalePrice()!=null
                     and productPhotoDto.getProduct().getDateExpired().isAfter(T(java.time.LocalDateTime).now())}">
-            <p class="priceNotSale" th:text="${productPhotoDto.getProduct().getPrice() + ' $'}"></p>
+            <p class="priceNotSale" th:text="${productPhotoDto.getProduct().getPrice() + '₴'}"></p>
             <div th:if="${admin}">
                 <a th:href="@{/product/sale/{id}(id=${productPhotoDto.getProduct().getId()})}" class="add-sale-btn">
                     Додати знижку</a>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>promocodes-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .btn-container {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #cce7ff;
+        }
+
+        th {
+            background-color: #007bff;
+            color: white;
+            font-weight: 500;
+        }
+
+        tr:hover {
+            background-color: #e6f2ff;
+            transform: scale(1.01);
+            transition: all 0.2s ease;
+        }
+
+        .add-promo-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            margin-top: 20px;
+        }
+
+        .add-promo-btn:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="btn-container">
+        <form th:method="GET" th:action="@{/product}">
+            <button type="submit" class="btn-return">Повернутись до продуктів</button>
+        </form>
+        <br>
+        <form th:if="${isAdmin}" th:method="GET" th:action="@{/admin}">
+            <button type="submit" class="btn-return">Повернутись до адмін сторінки</button>
+        </form>
+    </div>
+
+    <h1>Список Промокодів</h1>
+
+    <table>
+        <thead>
+        <tr>
+            <th>№</th>
+            <th>Промокод</th>
+            <th>Знижка</th>
+            <th>Дата закінчення</th>
+            <th>Тип знижки</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:if="${isAdmin}" th:each="promoCode:${promoCodes}">
+            <td th:text="${promoCode.getId()}"></td>
+            <td th:text="${promoCode.getCode()}"></td>
+            <td th:text="${promoCode.getDiscount() + (promoCode.isPercentage() ? '%' : '₴')}"></td>
+            <td th:text="${promoCode.getExpirationDate().toString()}"></td>
+            <td th:text="${promoCode.isPercentage()?'Процентна':'Фіксована'}"></td>
+        </tr>
+        <tr th:unless="${isAdmin}" th:each="promoCodeValid:${promoCodesValid}">
+            <td th:text="${promoCodeValid.getId()}"></td>
+            <td th:text="${promoCodeValid.getCode()}"></td>
+            <td th:text="${promoCodeValid.getDiscount() + (promoCodeValid.isPercentage() ? '%' : '₴')}"></td>
+            <td th:text="${promoCodeValid.getExpirationDate().toString()}"></td>
+            <td th:text="${promoCodeValid.isPercentage()?'Процентна':'Фіксована'}"></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <div th:if="${isAdmin}">
+        <a th:href="@{/promocode/new}" class="add-promo-btn">Додати новий промокод</a>
+    </div>
+</div>
+
+</body>
+</html>

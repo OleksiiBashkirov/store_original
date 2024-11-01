@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>promocode-new-page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .btn-container {
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .btn-return {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        .btn-return:hover {
+            background-color: #0056b3;
+            transform: scale(1.05);
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        label {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+
+        input[type="text"],
+        input[type="number"],
+        input[type="datetime-local"],
+        select {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="submit"] {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        input[type="submit"]:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+        }
+
+        .error {
+            color: red;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="btn-container">
+        <form th:method="GET" th:action="@{/promocode}">
+            <button type="submit" class="btn-return">Повернутись до промокодів</button>
+        </form>
+    </div>
+
+    <h1>Створення Промокоду</h1>
+
+    <form th:method="POST" th:action="@{/promocode/new}" th:object="${promoCodeNew}">
+        <div>
+            <label for="codeId">Код</label>
+            <input type="text" th:field="*{code}" id="codeId" placeholder="Введіть новий промокод">
+            <div class="error" th:if="${#fields.hasErrors('code')}" th:errors="*{code}"></div>
+        </div>
+
+        <div>
+            <label for="discountId">Знижка</label>
+            <input type="number" th:field="*{discount}" id="discountId" placeholder="Введіть розмір знижки">
+            <div class="error" th:if="${#fields.hasErrors('discount')}" th:errors="*{discount}"></div>
+        </div>
+
+        <div>
+            <label for="expirationDateId">Дата завершення</label>
+            <input type="datetime-local" th:field="*{expirationDate}" id="expirationDateId">
+        </div>
+
+        <div>
+            <label for="selectIsPercentageId">Тип знижки</label>
+            <select th:field="*{percentage}" id="selectIsPercentageId">
+                <option value="false">Фіксована</option>
+                <option value="true">Процентна</option>
+            </select>
+        </div>
+
+        <input type="submit" value="Зберегти">
+    </form>
+</div>
+</body>
+</html>

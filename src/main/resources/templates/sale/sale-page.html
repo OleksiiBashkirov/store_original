@@ -105,7 +105,7 @@
         <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${productSaleDto.getProductPhotoDto().getProductPhoto().getUrl().toString()})}" alt="Product Photo">
 
         <div class="product-title" th:text="${productSaleDto.getProductPhotoDto().getProduct().getTitle()}"></div>
-        <div class="product-price" th:text="${'Ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice()} + '$'"></div>
+        <div class="product-price" th:text="${'Ціна: ' + productSaleDto.getProductPhotoDto().getProduct().getPrice()} + '₴'"></div>
         <div class="in-stock" th:text="${'Залишилось на складі: ' + productSaleDto.getProductPhotoDto().getProduct().getCountLeft()}"></div>
         <div th:if="${productSaleDto.getProductPhotoDto().getProduct().getCountLeft() == 0}" class="out-of-stock"
              th:text="${'Товар закінчився'}"></div>
