@@ -1,5 +1,6 @@
 package bashkirov.store_original.service;
 
+import bashkirov.store_original.dto.EmailDto;
 import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.Person;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +22,13 @@ public class RegistrationService {
         person.setEnable(false);
 
         String key = activationService.generateKey(person.getEmail());
-//        emailService.sendEmail(new EmailDto(
-//                person.getEmail(),
-//                "Activation key",
-//                "To activate account please follow the link\nhttps://store.bashkirov.space/activate/" + key
-//        ));
+        emailService.sendEmail(new EmailDto(
+                person.getEmail(),
+                "Activation key",
+                "To activate account please follow the link\nhttps://store.bashkirov.space/activate/" + key
+        ));
 
-        emailService.sendActivationEmail(person.getEmail(), key);
+//        emailService.sendActivationEmail(person.getEmail(), key);
 
         jdbcTemplate.update(
                 "insert into person(name, lastname, address, phone, email, username, password, role, is_enable) values(?,?,?,?,?,?,?,?,?)",

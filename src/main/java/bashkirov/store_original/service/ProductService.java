@@ -386,7 +386,7 @@ public class ProductService {
             double discount = promoCode.isPercentage() ?
                     (product.getPrice() * (promoCode.getDiscount() / 100)) :
                     promoCode.getDiscount();
-            return Math.max(1, product.getPrice() - discount);
+            return ((int) (Math.max(1, product.getPrice() - discount) * 100)) / 100.;
         }
         return product.getPrice();
     }

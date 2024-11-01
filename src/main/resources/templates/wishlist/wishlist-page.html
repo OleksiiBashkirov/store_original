@@ -13,7 +13,7 @@
         }
 
         .container {
-            max-width: 800px;
+            max-width: 1000px;
             margin: 50px auto;
             background-color: white;
             padding: 30px;
@@ -107,6 +107,20 @@
         .delete-btn:hover {
             background-color: #5a6268;
         }
+
+        .add-to-cart-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .delete-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
 <body>
@@ -125,11 +139,27 @@
 
         <div class="wishlist-details">
             <a th:href="@{/product/{id}(id=${wishlistDto.getProductPhotoDto().getProduct().getId()})}"
-               th:text="${'Назва:' + wishlistDto.getProductPhotoDto().getProduct().getTitle()}"></a>
-            <p th:text="${'Ціна: ' +wishlistDto.getProductPhotoDto().getProduct().getPrice()}"></p>
+               th:text="${'Назва: ' + wishlistDto.getProductPhotoDto().getProduct().getTitle()}"></a>
+
+            <div th:if="${wishlistDto.getProductPhotoDto().getProduct().getSalePrice() != null}">
+                <p style="text-decoration: line-through"
+                   th:text="${'Стара ціна: ' + wishlistDto.getProductPhotoDto().getProduct().getPrice() + ' ₴'}"></p>
+                <p style="color: red; font-weight: bold;"
+                   th:text="${'Ціна зі знижкою: ' + wishlistDto.getProductPhotoDto().getProduct().getSalePrice() + ' ₴'}"></p>
+            </div>
+
+            <div th:if="${wishlistDto.getProductPhotoDto().getProduct().getSalePrice() == null}">
+                <p th:text="${'Ціна: ' + wishlistDto.getProductPhotoDto().getProduct().getPrice() + ' ₴'}"></p>
+            </div>
+
             <p th:text="${'Залишилось на складі: ' + wishlistDto.getProductPhotoDto().getProduct().getCountLeft()}"></p>
             <p th:text="${'Артикул: ' + wishlistDto.getProductPhotoDto().getProduct().getArticle()}"></p>
         </div>
+
+        <form th:method="POST" th:action="@{/cart}">
+            <input type="hidden" name="productId" th:value="${wishlistDto.getProductPhotoDto().getProduct().getId()}">
+            <button type="submit" class="add-to-cart-btn">Додати в кошик</button>
+        </form>
 
         <form th:method="DELETE" th:action="@{/wishlist/remove}">
             <input type="hidden" name="productId" th:value="${wishlistDto.getWishList().getProductId()}">

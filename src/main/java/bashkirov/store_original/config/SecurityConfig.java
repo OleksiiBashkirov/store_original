@@ -37,9 +37,15 @@ public class SecurityConfig {
                         formLogin
                                 .loginPage("/auth/login")
                                 .loginProcessingUrl("/process_login")
-                                .defaultSuccessUrl("/product")
+                                .defaultSuccessUrl("/product", true)
                                 .failureUrl("/auth/login?error")
+                )
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendRedirect("/auth/login");
+                        })
                 );
+        ;
         return httpSecurity.build();
     }
 }

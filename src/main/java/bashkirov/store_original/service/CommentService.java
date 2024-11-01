@@ -18,16 +18,11 @@ public class CommentService {
     private final PersonDetailsService personDetailsService;
 
     public List<Comment> getAllProductComments(int productId) {
-//        Person person = personDetailsService.getCurrentUser();
         return jdbcTemplate.query(
-                "select * from comment where product_id = ?" +
-//                        " AND person_id != ?" +
-                        " order by created_at DESC",
+                "select * from comment where product_id = ? order by created_at DESC",
                 new Object[]{productId
-//                        , person.getId()
                 },
                 getCommentRowMapper()
-//                new BeanPropertyRowMapper<>(Comment.class)
         );
     }
 
@@ -59,7 +54,6 @@ public class CommentService {
                 productId
         );
     }
-
 
     private static RowMapper<Comment> getCommentRowMapper() {
         return (rs, rowNum) -> {

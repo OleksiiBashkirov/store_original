@@ -234,8 +234,6 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public String salePage(
             @PathVariable("id") int productId,
-//            @ModelAttribute("productPhotoDto") ProductPhotoDto productPhotoDto,
-//            @ModelAttribute("productSaleDto") ProductSaleDto productSaleDto,
             Model model
     ) {
         Product product = productService.getById(productId);
@@ -252,32 +250,10 @@ public class ProductController {
     @PreAuthorize("hasRole('ADMIN')")
     public String updateSaleProduct(
             @PathVariable("id") int productId,
-//            @ModelAttribute("productPhotoDto") ProductPhotoDto productPhotoDto,
             @Valid @ModelAttribute("productSaleDto") ProductSaleDto productSaleDto,
             BindingResult bindingResult
-//            Model model
     ) {
-//        productSaleValidator.validate(productSaleDto, bindingResult);
-//        if (bindingResult.hasErrors()) {
-//            return "sale/sale-page";
-//        }
-//        model.addAttribute("product", productService.getById(productId));
         productService.addSaleProduct(productSaleDto);
         return "redirect:/product/" + productId;
-//                + productSaleDto.getProductPhotoDto().getProduct().getId();
     }
-
-
-    // ДЗ:
-    // (+) додати кнопки, додати логіку:
-    // (+) бачити звичайне інфо продукта
-    // (+)скасувати акцію -> кнопка
-    // (+)доробити чат
-//********************************************
-    // * сторінки зробити,
-    // * якщо є акція, бачити інфо акції, якщо немає акції,
-//********************************************
-
-    // наступне заняття: телеграм
-
 }

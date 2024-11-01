@@ -22,48 +22,53 @@ public class ChatGptService {
     public String chatGpt(String message, String systemText) {
         URL url = new URL(gptConfig.getUrl());
 
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Authorization", "Bearer " + gptConfig.getSecretKey());
-        con.setRequestProperty("Content-Type", "application/json");
+        try {
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            connection.setRequestMethod("POST");
+            connection.setRequestProperty("Authorization", "Bearer " + gptConfig.getSecretKey());
+            connection.setRequestProperty("Content-Type", "application/json");
 
-        JSONObject bodyObject = new JSONObject();
-        bodyObject.put("model", gptConfig.getVersion());
+            JSONObject bodyObject = new JSONObject();
+            bodyObject.put("model", gptConfig.getVersion());
 
-        JSONArray messagesArray = new JSONArray();
+            JSONObject messageSystem = new JSONObject();
+            messageSystem.put("role", "system");
+            messageSystem.put("content", systemText);
 
-        JSONObject messageSystem = new JSONObject();
-        messageSystem.put("role", "system");
-        messageSystem.put("content", systemText);
-        messagesArray.put(messageSystem);
+            JSONArray messagesArray = new JSONArray();
+            messagesArray.put(messageSystem);
 
 
-        JSONObject messageUser = new JSONObject();
-        messageUser.put("role", "user");
-        messageUser.put("content", message);
+            JSONObject messageUser = new JSONObject();
+            messageUser.put("role", "user");
+            messageUser.put("content", message);
 
-        messagesArray.put(messageUser);
+            messagesArray.put(messageUser);
 
-        bodyObject.put("messages", messagesArray);
+            bodyObject.put("messages", messagesArray);
 
-        String body = bodyObject.toString();
-        con.setDoOutput(true);
+            String body = bodyObject.toString();
+            connection.setDoOutput(true);
 
-        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(con.getOutputStream());
-        outputStreamWriter.write(body);
-        outputStreamWriter.flush();
-        outputStreamWriter.close();
+            OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
+            writer.write(body);
+            writer.flush();
+            writer.close();
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-        String inputLine;
+            BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            String inputLine;
 
-        StringBuffer response = new StringBuffer();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+            StringBuffer response = new StringBuffer();
+            while ((inputLine = reader.readLine()) != null) {
+                response.append(inputLine);
+            }
+            reader.close();
+
+            return extractContentFromResponse(response.toString());
+        } catch (Exception e) {
+            System.out.println("Error connecting to ChatGPT API:" + e.getMessage());
+            return "Вибачне, сталася помилка під час обробки вашого запиту. Будь ласка, спробуйте ще раз пізніше.";
         }
-        in.close();
-
-        return extractContentFromResponse(response.toString());
     }
 
     public static String extractContentFromResponse(String response) {

@@ -54,7 +54,7 @@
 
         .cart-item-info {
             flex: 1;
-            margin-left: 30px;
+            margin-left: 20px;
         }
 
         .cart-item-info a {
@@ -83,8 +83,10 @@
         .quantity-control button {
             background-color: #f9f9f9;
             color: white;
-            border: none;
-            padding: 10px;
+            /*border: none;*/
+            border: 1px solid #ccc;
+            /*padding: 10px;*/
+            padding: 8px 12px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 16px;
@@ -132,20 +134,53 @@
         .continue-shopping:hover {
             background-color: #0056b3;
         }
+
+        .cart-summary {
+            text-align: right;
+            margin-top: 30px;
+            padding: 20px;
+            font-size: 22px;
+            font-weight: bold;
+            color: #333;
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .total-label {
+            color: #007bff;
+        }
+
+        .total-amount {
+            color: #28a745;
+            font-size: 24px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
 <div class="container">
     <h1>Ваш кошик</h1>
 
-    <div th:each="cartItemDto : ${cartItemsListNotTakenReturnCartItemDto}" class="cart-item">
+    <div th:each="cartItemDto : ${cartItemDtos}" class="cart-item">
         <img th:src="@{https://bashkirovbank.fra1.digitaloceanspaces.com/{url}(url=${cartItemDto.getProductPhotoDto().getProductPhoto().getUrl()})}"
              alt="Product Image">
 
         <div class="cart-item-info">
             <a th:href="@{/product/{id}(id=${cartItemDto.getCartItem().getProductId()})}"
-               th:text="${'Назва:' + cartItemDto.getProductPhotoDto().getProduct().getTitle()}"></a>
-            <p th:text="${'Ціна: ' + cartItemDto.getProductPhotoDto().getProduct().getPrice()}"></p>
+               th:text="${cartItemDto.getProductPhotoDto().getProduct().getTitle()}">Назва продукту</a>
+
+            <div th:if="${cartItemDto.getProductPhotoDto().getProduct().getSalePrice()!=null}">
+                <p style="text-decoration: line-through"
+                   th:text="${'Стара ціна: ' + cartItemDto.getProductPhotoDto().getProduct().getPrice() + ' ₴'}"></p>
+                <p style="color: red; font-weight: bold"
+                   th:text="${'Ціна зі знижкою: ' + cartItemDto.getProductPhotoDto().getProduct().getSalePrice() + ' ₴'}"></p>
+            </div>
+            <div th:if="${cartItemDto.getProductPhotoDto().getProduct().getSalePrice() == null}">
+                <p th:text="${'Ціна: ' + cartItemDto.getProductPhotoDto().getProduct().getPrice() + ' ₴'}"></p>
+            </div>
+
             <p th:text="${'Залишилось на складі: ' + cartItemDto.getProductPhotoDto().getProduct().getCountLeft()}"></p>
             <p th:text="${'Артикул: ' + cartItemDto.getProductPhotoDto().getProduct().getArticle()}"></p>
         </div>
@@ -166,6 +201,14 @@
             </form>
         </div>
     </div>
+
+    <div class="cart-summary">
+        <span class="total-label">Загальна вартість 🛒:</span>
+        <span class="total-amount" th:text="${totalSum + ' ₴'}"></span>
+    </div>
+
+<!--    <div class="cart-total" th:text="${'Загальна вартість 🛒 : ' + totalSum + ' ₴'}"></div>-->
+    <!--    <p th:text="${'Загальна вартість 🛒 : ' + totalSum + ' ₴'}"></p>-->
 
     <div class="button-group">
         <form th:method="GET" th:action="@{/product}">

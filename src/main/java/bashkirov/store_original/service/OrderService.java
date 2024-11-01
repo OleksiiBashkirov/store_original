@@ -121,7 +121,7 @@ public class OrderService {
                 ).stream().findAny()
                 .orElseThrow(() -> new NoSuchElementException("Failed to find any order by personId= " + person.getId()));
 
-        List<CartItem> cartItemListOrderNull = cartItemService.getAllNotTaken();
+        List<CartItem> cartItemListOrderNull = cartItemService.getAllCartItemsNotTaken();
 
         for (CartItem cartItem : cartItemListOrderNull) {
             Product product = productService.getById(cartItem.getProductId());
@@ -145,7 +145,7 @@ public class OrderService {
                         cartItem.getId()
                 );
             } else {
-                cartItemService.delete(cartItem.getId());
+                cartItemService.deleteCartItemById(cartItem.getId());
             }
         }
     }

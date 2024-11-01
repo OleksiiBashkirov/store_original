@@ -262,15 +262,10 @@
             transform: scale(1.05);
         }
 
-        .price, .promo-price, .original-price {
+        .price {
             font-size: 18px;
             color: #555;
             margin: 5px 0;
-        }
-
-        .original-price {
-            text-decoration: line-through;
-            color: #888;
         }
 
         .promo-price {
@@ -338,7 +333,7 @@
             <p class="price" style="text-decoration: line-through"
                th:text="${'Стара ціна: ' + product.getPrice() + '₴'}"></p>
             <p class="sale-price" style="color: red; font-weight: bold"
-               th:text="${'Знижка: ' + productSaleDto.getSalePrice() + '₴'}"></p>
+               th:text="${'Ціна зі знижкою: ' + productSaleDto.getSalePrice() + '₴'}"></p>
 
             <p class="hours-left" style="color: red; font-weight: bold"
                th:with="duration=${T(java.time.Duration).between(T(java.time.LocalDateTime).now(), productSaleDto.getProductPhotoDto().getProduct().getDateExpired())}"
@@ -357,14 +352,13 @@
         </div>
 
         <div th:unless="${hasProductSaleDto}">
-            <div th:if="${promoCode}" class="price-details">
-                <p class="original-price" th:if="${promoCode}"
-                   th:text="${'Стара ціна: ' + product.getPrice() + '₴'}"></p>
-                <p class="promo-price" th:if="${promoCode}" th:text="${'Ціна зі знижкою: ' + promoPrice + '₴'}"></p>
-                <!--            <p class="price" th:text="${'Ціна: ' + productWithPhotos.getProduct().getPrice() + '₴'}"></p>-->
+            <div th:if="${!promoCode.equals('')}" class="price-details">
+                <p  th:if="${promoCode}"
+                    style="text-decoration: line-through" th:text="${'Стара ціна: ' + product.getPrice() + '₴'}"></p>
+                <p style="color: red; font-weight: bold; font-size: 20px;" th:if="${promoCode}" th:text="${'Ціна за промокодом: ' + promoPrice + '₴'}"></p>
             </div>
-            <div th:unless="${promoCode}" class="price-details">
-                <p class="price" th:unless="${promoCode}" th:text="${'Ціна: ' + product.getPrice() + '₴'}"></p>
+            <div th:if="${promoCode.equals('')}" class="price-details">
+                <p class="price" th:text="${'Ціна: ' + productWithPhotos.getProduct().getPrice() + '₴'}"></p>
             </div>
         </div>
 
@@ -383,8 +377,8 @@
         </form>
     </div>
 
-<!--    <p th:if="${promoCode}" class="price">Ціна по промокоду: <span th:text="${promoPrice}">0.0</span> ₴</p>-->
-    <p th:unless="${promoCode}" class="price">Ціна: <span th:text="${product.getPrice()}">0.0</span> ₴</p>
+    <!--    <p th:if="${promoCode}" class="price">Ціна по промокоду: <span th:text="${promoPrice}">0.0</span> ₴</p>-->
+    <!--    <p th:unless="${promoCode}" class="price">Ціна: <span th:text="${product.getPrice()}">0.0</span> ₴</p>-->
 
     <div class="button-group">
         <div th:if="${admin}">

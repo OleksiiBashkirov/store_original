@@ -19,10 +19,10 @@ public class CartItemController {
     private final CartItemService cartItemService;
 
     @PostMapping
-    public String add(
+    public String addCartItem(
             @RequestParam("productId") int productId
     ) {
-        cartItemService.add(productId);
+        cartItemService.addCartItemByProductId(productId);
         return "redirect:/product/" + productId;
     }
 
@@ -30,25 +30,25 @@ public class CartItemController {
     public String showShoppingCart(
             Model model
     ) {
-        model.addAttribute("cartItemsListNotTakenReturnCartItemDto",
-                cartItemService.getAllNotTakenReturnCartItemDto());
+        model.addAttribute("cartItemDtos", cartItemService.getAllCartItemDtosInShoppingCart());
+        model.addAttribute("totalSum", cartItemService.getTotalPriceOffAllCartItemsInShoppingCart());
         return "shopping-cart/shoppingCart-page";
     }
 
     @PutMapping("/edit")
-    public String updateCartItemCount(
+    public String updateCartItemQuantity(
             @RequestParam("cartItemId") int cartItemId,
             @RequestParam("quantityNew") int quantityNew
     ) {
-        cartItemService.update(cartItemId, quantityNew);
+        cartItemService.updateCartItemQuantity(cartItemId, quantityNew);
         return "redirect:/cart";
     }
 
-    @DeleteMapping("/{id}")     //!!!!
-    public String delete(
-            @PathVariable("id") int id
+    @DeleteMapping("/{cartItemId}")     //!!!!
+    public String deleteCartItem(
+            @PathVariable("cartItemId") int cartItemId
     ) {
-        cartItemService.delete(id);
+        cartItemService.deleteCartItemById(cartItemId);
         return "redirect:/cart";
     }
 }

@@ -19,15 +19,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class PromoCodeController {
     private final PromoCodeService promoCodeService;
 
-//    @GetMapping("/{id}")
-//    public String showPromoCodePage(
-//            @PathVariable("id") int promoCodeId,
-//            Model model
-//    ) {
-//        model.addAttribute("promoCode", promoCodeService.getPromoCodeById(promoCodeId));
-//        return "promocode/promocode-page";
-//    }
-
     @GetMapping
     public String showAllPromoCodePage(
             Model model,
