@@ -280,7 +280,7 @@ public class ProductService {
 
     public List<ProductSaleDto> getAllProductSaleDto() {
         List<Product> productList = jdbcTemplate.query(
-                "select * from defaultdb.public.product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
+                "select * from product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
                 new BeanPropertyRowMapper<>(Product.class)
         );
 
@@ -300,7 +300,7 @@ public class ProductService {
 
     public String getFiveRandomProductSaleDto() {
         List<Product> productList = jdbcTemplate.query(
-                "select * from defaultdb.public.product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
+                "select * from product where sale_price IS NOT NULL AND date_expired > NOW() order by id",
                 new BeanPropertyRowMapper<>(Product.class)
         );
 
@@ -369,7 +369,7 @@ public class ProductService {
     @Scheduled(fixedRate = 5, timeUnit = TimeUnit.MINUTES)
     public void autoFinishSaleProduct() {
         List<Product> products = jdbcTemplate.query(
-                "select * from defaultdb.public.product where date_expired <= NOW()",
+                "select * from product where date_expired <= NOW()",
                 new BeanPropertyRowMapper<>(Product.class)
         );
 
@@ -379,7 +379,7 @@ public class ProductService {
     }
 
     public Double applyPromoCode(Product product, String code) {
-        Optional<PromoCode> promoCodeOpt = promoCodeService.getValidPromoCode(code);
+        Optional<PromoCode> promoCodeOpt = promoCodeService.getValidPromoCode(code, product.getCategoryId());
 
         if (promoCodeOpt.isPresent()) {
             PromoCode promoCode = promoCodeOpt.get();

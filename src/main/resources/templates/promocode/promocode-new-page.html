@@ -133,6 +133,23 @@
             </select>
         </div>
 
+        <div>
+            <!--            <label for="selectCategoryId">Категорія товарів</label>-->
+            <!--            <input type="number" th:field="*{categoryId}" id="categoryId">-->
+
+            <select name="categoryId" id="selectCategoryId">
+                <!--            <select th:each="category : ${categories}" id="selectCategoryId">-->
+                <option value="" th:selected="${categoryId == null}">Всі</option>
+                <option th:each="category : ${categories}"
+                        th:value="${category.getId()}"
+                        th:text="${category.getName() + ', id= ' + category.getId()}"
+                        th:selected="${categoryId == category.getId()}"
+                >
+                </option>
+<!--                <option value="true">Процентна</option>-->
+            </select>
+        </div>
+
         <input type="submit" value="Зберегти">
     </form>
 </div>

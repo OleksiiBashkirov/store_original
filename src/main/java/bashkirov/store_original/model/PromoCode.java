@@ -22,4 +22,5 @@ public class PromoCode {
     private double discount;
     private LocalDateTime expirationDate;
     private boolean isPercentage;
+    private Integer categoryId;
 }

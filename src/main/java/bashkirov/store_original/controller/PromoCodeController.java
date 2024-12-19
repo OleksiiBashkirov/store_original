@@ -3,6 +3,7 @@ package bashkirov.store_original.controller;
 import bashkirov.store_original.enumeration.Role;
 import bashkirov.store_original.model.PromoCode;
 import bashkirov.store_original.security.PersonDetails;
+import bashkirov.store_original.service.CategoryService;
 import bashkirov.store_original.service.PromoCodeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequiredArgsConstructor
 public class PromoCodeController {
     private final PromoCodeService promoCodeService;
+    private final CategoryService categoryService;
 
     @GetMapping
     public String showAllPromoCodePage(
@@ -28,7 +30,7 @@ public class PromoCodeController {
                 && personDetails.person().getRole().equals(Role.ROLE_ADMIN);
 
         model.addAttribute("isAdmin", isAdmin);
-        model.addAttribute("promoCodes", promoCodeService.getAllPromoCode());
+        model.addAttribute("promoCodes", promoCodeService.getAllPromoCodes());
         model.addAttribute("promoCodesValid", promoCodeService.getAllValidPromoCodes());
 
         return "promocode/promocodes-page";
@@ -37,8 +39,11 @@ public class PromoCodeController {
 
     @GetMapping("/new")
     public String promoCodeNewPage(
-            @ModelAttribute("promoCodeNew") PromoCode promoCode
+            @ModelAttribute("promoCodeNew") PromoCode promoCode,
+            Model model
     ) {
+        model.addAttribute("categories", categoryService.getAll());
+        model.addAttribute("categoryId", null);
         return "promocode/promocode-new-page";
     }
 

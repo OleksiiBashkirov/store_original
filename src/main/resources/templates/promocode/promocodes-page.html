@@ -119,6 +119,7 @@
             <th>Знижка</th>
             <th>Дата закінчення</th>
             <th>Тип знижки</th>
+            <th>Категорія</th>
         </tr>
         </thead>
         <tbody>
@@ -128,6 +129,7 @@
             <td th:text="${promoCode.getDiscount() + (promoCode.isPercentage() ? '%' : '₴')}"></td>
             <td th:text="${promoCode.getExpirationDate().toString()}"></td>
             <td th:text="${promoCode.isPercentage()?'Процентна':'Фіксована'}"></td>
+            <td th:text="${promoCode.getCategoryId()}"></td>
         </tr>
         <tr th:unless="${isAdmin}" th:each="promoCodeValid:${promoCodesValid}">
             <td th:text="${promoCodeValid.getId()}"></td>
@@ -135,6 +137,7 @@
             <td th:text="${promoCodeValid.getDiscount() + (promoCodeValid.isPercentage() ? '%' : '₴')}"></td>
             <td th:text="${promoCodeValid.getExpirationDate().toString()}"></td>
             <td th:text="${promoCodeValid.isPercentage()?'Процентна':'Фіксована'}"></td>
+            <td th:text="${promoCodeValid.getCategoryId()}"></td>
         </tr>
         </tbody>
     </table>

@@ -15,40 +15,42 @@ import java.util.Optional;
 public class PromoCodeService {
     private final JdbcTemplate jdbcTemplate;
 
-    public Optional<PromoCode> getValidPromoCode(String code) {
+    public Optional<PromoCode> getValidPromoCode(String code, Integer categoryId) {
         return jdbcTemplate.query(
-                "select * from promo_code where code = ? and expiration_date > NOW()",
-                new Object[]{code},
+                "select * from promo_code where code = ? and expiration_date > NOW()" +
+                        "and (category_id IS NULL or category_id = ?)",
+                new Object[]{code, categoryId},
                 getPromoCodeRowMapper()
         ).stream().findAny();
     }
 
     public List<PromoCode> getAllValidPromoCodes() {
         return jdbcTemplate.query(
-                "select * from promo_code where expiration_date > NOW()",
+                "select * from promo_code where expiration_date > NOW() order by id",
                 getPromoCodeRowMapper()
         );
     }
 
     public void savePromoCode(PromoCode promoCode) {
         jdbcTemplate.update(
-                "insert into promo_code(code, discount, expiration_date, is_percentage) values (?,?,?,?)",
+                "insert into promo_code(code, discount, expiration_date, is_percentage, category_id) values (?,?,?,?,?)",
                 promoCode.getCode(),
                 promoCode.getDiscount(),
                 promoCode.getExpirationDate(),
-                promoCode.isPercentage()
+                promoCode.isPercentage(),
+                promoCode.getCategoryId()
         );
     }
 
-    public PromoCode getPromoCodeById(int promocodeId) {
+    public PromoCode getPromoCodeById(int promoCodeId) {
         return jdbcTemplate.query(
                 "select * from promo_code where id = ?",
-                new Object[]{promocodeId},
+                new Object[]{promoCodeId},
                 getPromoCodeRowMapper()
         ).stream().findAny().orElseThrow();
     }
 
-    public List<PromoCode> getAllPromoCode(){
+    public List<PromoCode> getAllPromoCodes(){
         return jdbcTemplate.query(
                 "select * from promo_code order by id desc",
                 getPromoCodeRowMapper()
@@ -64,6 +66,7 @@ public class PromoCodeService {
             promoCode.setDiscount(rs.getDouble("discount"));
             promoCode.setExpirationDate(rs.getTimestamp("expiration_date").toLocalDateTime());
             promoCode.setPercentage(rs.getBoolean("is_percentage"));
+            promoCode.setCategoryId(rs.getInt("category_id"));
             return promoCode;
         };
     }

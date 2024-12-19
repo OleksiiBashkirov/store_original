@@ -27,12 +27,12 @@ public class SecurityConfig {
         httpSecurity
                 .authorizeRequests(authorizeRequest ->
                         authorizeRequest
-                                .requestMatchers("/admin/**","/telegram/**", "/order/admin/**").hasRole("ADMIN")
+                                .requestMatchers("/admin/**", "/telegram/**", "/order/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/manager/**").hasRole("MANAGER")
+                                .requestMatchers(HttpMethod.GET, "/product/**").permitAll()
                                 .requestMatchers("/auth/**", "/activate/**", "/error").permitAll()
-                                .requestMatchers(HttpMethod.GET,"/product/**").permitAll()
                                 .anyRequest().authenticated()
-        )
+                )
                 .formLogin(formLogin ->
                         formLogin
                                 .loginPage("/auth/login")
@@ -40,11 +40,12 @@ public class SecurityConfig {
                                 .defaultSuccessUrl("/product", true)
                                 .failureUrl("/auth/login?error")
                 )
-                .exceptionHandling(exceptionHandling ->
-                        exceptionHandling.accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.sendRedirect("/auth/login");
-                        })
-                );
+//                .exceptionHandling(exceptionHandling ->
+//                        exceptionHandling
+//                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+//                                    response.sendRedirect("/auth/login");
+//                                })
+//                );
         ;
         return httpSecurity.build();
     }
