@@ -15,6 +15,8 @@ create table if not exists person
 -- insert into person (name, lastname, address, phone, email, username, password, role, is_enable)
 -- values ('Anonymous', 'User', '00000, Unknown, Anonymous Street', '+0000000000',
 --         'anonymous@example.com', 'guest', '', 'GUEST', true);
+alter table person add column created_at timestamp without time zone default current_timestamp;
+
 
 
 create table if not exists category

@@ -134,4 +134,11 @@ public class PersonDetailsService implements UserDetailsService {
                 getCurrentUser().getId()
         );
     }
+
+    public void deleteNotActivatedPersonAccountsMoreThen2HoursAgo() {
+        System.out.println("Запустился метод deleteNotActivatedPersonAccountsMoreThen2HoursAgo");
+        jdbcTemplate.update(
+                "delete from person where is_enable = false and created_at < now() - interval '30 seconds'"
+        );
+    }
 }

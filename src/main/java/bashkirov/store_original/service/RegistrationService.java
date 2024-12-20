@@ -5,8 +5,11 @@ import bashkirov.store_original.model.Person;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +18,7 @@ public class RegistrationService {
     private final PasswordEncoder passwordEncoder;
     private final ActivationService activationService;
     private final EmailService emailService;
+    private final PersonDetailsService personDetailsService;
 
     @SneakyThrows
     public void register(Person person) {
@@ -45,5 +49,11 @@ public class RegistrationService {
 //        Thread.sleep(1000);
 
         emailService.sendActivationEmail(person.getEmail(), key);
+    }
+
+    @Scheduled(fixedRate = 30, timeUnit = TimeUnit.SECONDS)
+    public void runCleanupNotActivatedPersonAccounts() {
+        System.out.println("Запустился метод runCleanupNotActivatedPersonAccounts");
+        personDetailsService.deleteNotActivatedPersonAccountsMoreThen2HoursAgo();
     }
 }
